@@ -75,8 +75,6 @@ function Dashboard() {
       setError("");
       try {
         const today = new Date().toISOString().split("T")[0];
-        const startOfDay = `${today}T00:00:00Z`;
-        const endOfDay = `${today}T23:59:59Z`;
 
         // Upcoming window for events: now -> +30 days
         const startFromNow = new Date().toISOString();

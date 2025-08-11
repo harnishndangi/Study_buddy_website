@@ -10,7 +10,7 @@ function Pomodoro() {
   const [currentPhase, setCurrentPhase] = useState("focus"); // 'focus', 'shortBreak', 'longBreak'
   const [completedRounds, setCompletedRounds] = useState(0);
   const [sessionStartTime, setSessionStartTime] = useState(null);
-  const [currentSessionId, setCurrentSessionId] = useState(null);
+  const [_currentSessionId, setCurrentSessionId] = useState(null);
 
   // Session Configuration
   const [studyPeriod, setStudyPeriod] = useState(25);

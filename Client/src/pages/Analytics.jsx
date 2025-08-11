@@ -30,6 +30,7 @@ const getUserIdFromToken = () => {
 const StatCard = ({
   title,
   value,
+  // eslint-disable-next-line no-unused-vars
   icon: Icon,
   description,
   color = "bg-indigo-600",

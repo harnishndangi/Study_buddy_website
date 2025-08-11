@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+// eslint-disable-next-line no-unused-vars
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Play, X, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react'
 import Sidebar from '../components/Layout/Sidebar'

@@ -52,14 +52,19 @@ function Sidebar() {
                     <Link
                         key={item.to}
                         to={item.to}
-                        className={`flex items-center gap-1 px-1.5 py-2 rounded-lg font-medium transition-all duration-200
+                        aria-label={item.label}
+                        className={`group relative flex items-center gap-1 px-1.5 py-2 rounded-lg font-medium transition-all duration-200
                           ${location.pathname === item.to
                                 ? "bg-indigo-600 text-white shadow"
                                 : "text-gray-700 hover:bg-indigo-50 hover:text-indigo-600"}
                         `}
                     >
-                        {item.icon}
+                        <span className="transition-transform group-hover:scale-110">{item.icon}</span>
                         <span className="hidden md:inline">{item.label}</span>
+                        {/* Tooltip for small screens */}
+                        <span className="md:hidden absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 text-xs bg-gray-900 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                            {item.label}
+                        </span>
                     </Link>
                 ))}
             </nav>
@@ -100,12 +105,12 @@ function Sidebar() {
                     {!isLoggedIn ? (
                         <>
                             <Link to="/signup" className="w-full">
-                                <button className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold shadow hover:bg-indigo-700 transition">
+                                <button aria-label="Sign up" className="w-full bg-indigo-600 text-white py-2 rounded-lg font-semibold shadow hover:bg-indigo-700 transition">
                                     Sign Up
                                 </button>
                             </Link>
                             <Link to="/login" className="w-full">
-                                <button className="w-full bg-white text-indigo-600 border border-indigo-200 py-2 rounded-lg font-semibold shadow hover:bg-indigo-50 transition">
+                                <button aria-label="Log in" className="w-full bg-white text-indigo-600 border border-indigo-200 py-2 rounded-lg font-semibold shadow hover:bg-indigo-50 transition">
                                     Login
                                 </button>
                             </Link>
@@ -113,10 +118,12 @@ function Sidebar() {
                     ) : (
                         <button 
                             onClick={handleLogout}
-                            className="w-full bg-red-600 text-white py-2 rounded-lg font-semibold shadow hover:bg-red-700 transition flex items-center justify-center gap-2"
+                            aria-label="Logout"
+                            className="group relative w-full bg-red-600 text-white py-2 rounded-lg font-semibold shadow hover:bg-red-700 transition flex items-center justify-center gap-2"
                         >
-                            <LogOut size={18} />
+                            <span className="transition-transform group-hover:scale-110"><LogOut size={18} /></span>
                             <span className="hidden md:inline">Logout</span>
+                            <span className="md:hidden absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 text-xs bg-gray-900 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">Logout</span>
                         </button>
                     )}
                 </div>
