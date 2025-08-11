@@ -237,8 +237,10 @@ function Tasks() {
   return (
     <>
       <div className="flex h-screen overflow-hidden">
-        <Sidebar />
-        <main className="flex-1 ml-20 md:ml-40 p-3 sm:p-6 lg:p-8 bg-gray-50 overflow-y-auto relative z-10">
+        <div className={`${(showCreateForm || editingTask) ? 'hidden md:block' : ''}`}>
+          <Sidebar />
+        </div>
+        <main className={`flex-1 ${(showCreateForm || editingTask) ? 'ml-0 md:ml-40' : 'ml-20 md:ml-40'} p-3 sm:p-6 lg:p-8 bg-gray-50 overflow-y-auto relative z-10`}>
           <div className="max-w-6xl mx-auto">
             {/* Header */}
             <div className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:items-center sm:space-y-0 mb-6 pb-4 border-b border-gray-200">
@@ -305,7 +307,7 @@ function Tasks() {
             {/* Create/Edit Task Form Modal - FIXED MODAL */}
             {(showCreateForm || editingTask) && (
               <div
-                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4 py-6 sm:px-0 sm:py-0"
+                className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60] px-4 py-6 sm:px-0 sm:py-0"
                 style={{
                   paddingTop: "env(safe-area-inset-top)",
                   paddingBottom: "env(safe-area-inset-bottom)",

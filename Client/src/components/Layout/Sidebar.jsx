@@ -31,7 +31,7 @@ function Sidebar() {
     };
 
     return (
-        <aside className="fixed left-0 top-0 flex flex-col h-screen w-20 md:w-40 bg-white shadow-2xl md:shadow-xl border-r-2 border-indigo-100 md:border-slate-100 md:bg-white/80 md:backdrop-blur-lg rounded-none md:rounded-xl p-4 md:p-6 transition-all duration-300 z-50 overflow-hidden">
+        <aside className="fixed left-0 top-0 flex flex-col h-screen w-20 md:w-40 bg-white shadow-2xl md:shadow-xl border-r-2 border-indigo-100 md:border-slate-100 md:bg-white/80 md:backdrop-blur-lg rounded-none md:rounded-xl p-4 md:p-6 transition-all duration-300 z-40 overflow-hidden">
             {/* Logo */}
             <div className=" flex items-center justify-center mb-5">
                 <Link to="/" className="flex justify-center">

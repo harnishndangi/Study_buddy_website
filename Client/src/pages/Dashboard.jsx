@@ -77,17 +77,21 @@ function Dashboard() {
         const today = new Date().toISOString().split("T")[0];
         const startOfDay = `${today}T00:00:00Z`;
         const endOfDay = `${today}T23:59:59Z`;
+
+        // Upcoming window for events: now -> +30 days
+        const startFromNow = new Date().toISOString();
+        const endIn30Days = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
         
         // Note: Using a dummy userId for pomodoro stats. In a real app, get this from auth context
         const userId = getUserIdFromToken();
 
         const [tasksResponse, eventsResponse, notesResponse, pomoResponse] =
-          await Promise.all([
-            // Get all tasks since backend doesn't support filtering by deadline/status yet
-            axios.get("http://localhost:3000/api/tasks"),
-            // Use the correct calendar endpoint with query params
-            axios.get(`http://localhost:3000/api/calendar?startDate=${startOfDay}&endDate=${endOfDay}`),
-            // Get recent notes - backend supports search but not limit/sortBy params
+        await Promise.all([
+        // Get all tasks since backend doesn't support filtering by deadline/status yet
+        axios.get("http://localhost:3000/api/tasks"),
+        // Fetch upcoming events from calendar (sorted ascending)
+        axios.get(`http://localhost:3000/api/calendar?startDate=${encodeURIComponent(startFromNow)}&endDate=${encodeURIComponent(endIn30Days)}&sortBy=start&sortOrder=asc`),
+          // Get recent notes - backend supports search but not limit/sortBy params
             axios.get("http://localhost:3000/api/notes"),
             // Get pomodoro stats with userId param
             axios.get(`http://localhost:3000/api/pomodoros/stats/${userId}`),
@@ -166,12 +170,12 @@ function Dashboard() {
               linkTo="/tasks"
             />
             <StatCard
-              title="Events Today"
+              title="Upcoming Events"
               value={loading ? "..." : events.length}
               icon={<Calendar className="text-indigo-500" size={32} />}
               color="border-indigo-500"
               linkTo="/calendar"
-            />
+              />
             <StatCard
               title="Pomodoros Today"
               value={loading ? "..." : pomodoroStats.sessionsToday}
@@ -252,9 +256,9 @@ function Dashboard() {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-gray-500 text-center py-4">
-                    No events scheduled for today.
-                  </p>
+                <p className="text-gray-500 text-center py-4">
+                No upcoming events.
+                </p>
                 )}
               </DashboardCard>
             </div>
