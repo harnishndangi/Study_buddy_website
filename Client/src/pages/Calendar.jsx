@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosConfig";
 import Sidebar from "../components/Layout/Sidebar";
 
 // Calendar Component with optimized screen fit and scrolling
@@ -30,7 +30,7 @@ function Calendar() {
     color: "#3498db",
     notifications: [],
   });
-
+ 
   const [editMode, setEditMode] = useState(false);
   const modalRef = useRef(null);
 
@@ -44,9 +44,6 @@ function Calendar() {
     { value: "birthday", label: "Birthday", color: "#FDE29B" },
     { value: "other", label: "Other", color: "#95a5a6" },
   ];
-
-  // API base URL
-  const API_BASE_URL = "http://localhost:3000/api/calendar";
 
   // Fetch events on component mount and when filters change
   useEffect(() => {
@@ -85,7 +82,7 @@ function Calendar() {
         sortOrder: "asc",
       });
 
-      const response = await axios.get(`${API_BASE_URL}?${params}`);
+      const response = await axiosInstance.get(`/calendar?${params}`);
       if (response.data.success) {
         setEvents(response.data.data);
       } else {
@@ -142,7 +139,7 @@ function Calendar() {
   const createEvent = async (eventData) => {
     try {
       setLoading(true);
-      const response = await axios.post(API_BASE_URL, eventData);
+      const response = await axiosInstance.post(`/calendar`, eventData);
       if (response.data.success) {
         setSuccess("Event created successfully!");
         fetchEvents();
@@ -163,7 +160,7 @@ function Calendar() {
   const updateEvent = async (eventId, eventData) => {
     try {
       setLoading(true);
-      const response = await axios.put(`${API_BASE_URL}/${eventId}`, eventData);
+      const response = await axiosInstance.put(`/calendar/${eventId}`, eventData);
       if (response.data.success) {
         setSuccess("Event updated successfully!");
         fetchEvents();
@@ -186,7 +183,7 @@ function Calendar() {
 
     try {
       setLoading(true);
-      const response = await axios.delete(`${API_BASE_URL}/${eventId}`);
+      const response = await axiosInstance.delete(`/calendar/${eventId}`);
       if (response.data.success) {
         setSuccess("Event deleted successfully!");
         fetchEvents();

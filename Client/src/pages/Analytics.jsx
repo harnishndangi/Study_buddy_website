@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosConfig";
 import Sidebar from "../components/Layout/Sidebar";
 import {
   BarChart3,
@@ -208,18 +208,18 @@ function Analytics() {
       // Fetch data from all endpoints
       const [tasksResponse, notesResponse, pomodorosResponse, eventsResponse] =
         await Promise.all([
-          axios
-            .get("http://localhost:3000/api/tasks")
+          axiosInstance
+            .get("/tasks")
             .catch(() => ({ data: [] })),
-          axios
-            .get("http://localhost:3000/api/notes")
+          axiosInstance
+            .get("/notes")
             .catch(() => ({ data: [] })),
-          axios
-            .get(`http://localhost:3000/api/pomodoros/stats/${userId}`)
+          axiosInstance
+            .get(`/pomodoros/stats/${userId}`)
             .catch(() => ({ data: {} })),
-          axios
+          axiosInstance
             .get(
-              `http://localhost:3000/api/calendar?startDate=${startDateStr}&endDate=${endDateStr}`
+              `/calendar?startDate=${startDateStr}&endDate=${endDateStr}`
             )
             .catch(() => ({ data: [] })),
         ]);
