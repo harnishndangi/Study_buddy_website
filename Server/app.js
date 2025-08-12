@@ -22,4 +22,4 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/pomodoros", pomodoroRoutes);
 app.use("/api/calendar", calendarRoutes);
 
-export default app;
+export { app };
