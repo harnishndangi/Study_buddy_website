@@ -1,31 +1,15 @@
-import express from "express";
 import "dotenv/config";
-import cors from "cors";
 import { connectDB } from "./library/db.js";
-import authRoutes from './routes/auth.js';
-import noteRoutes from "./routes/notes.js";
-import taskRoutes from "./routes/tasks.js";
-import pomodoroRoutes from './routes/pomodoros.js';
-import calendarRoutes from './routes/calendar.js';
+import app from "./app.js";
 
-const app = express();
-const port = process.env.PORT;
+const port = process.env.PORT || 3000;
 
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Increase limit for larger payloads
+const start = async () => {
+  await connectDB();
+  app.listen(port, () => {
+    console.log(`Server is running on http://localhost:${port}`);
+  });
+};
 
-
-
-app.use("/api/auth", authRoutes);
-app.use("/api/notes", noteRoutes);
-app.use("/api/tasks", taskRoutes);
-app.use("/api/pomodoros", pomodoroRoutes);
-app.use("/api/calendar",calendarRoutes);
-
-
-app.listen(port,async ()=>{
-    await connectDB();
-    console.log(`Server is running on port http://localhost:${port}`)
-});
+start();
 
