@@ -1,0 +1,11 @@
+{
+  "name": "study-buddy-monorepo",
+  "private": true,
+  "workspaces": [
+    "Client",
+    "Server"
+  ],
+  "scripts": {
+    "build": "npm --workspace Client run build"
+  }
+}
