@@ -43,7 +43,7 @@ const DashboardCard = ({ title, icon, linkTo, children }) => (
     <div className="flex-grow overflow-y-auto">{children}</div>
   </div>
 );
-
+ 
 function Dashboard() {
   const [tasks, setTasks] = useState([]);
   const [events, setEvents] = useState([]);
