@@ -16,10 +16,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: '10mb' })); // Increase limit for larger payloads
 
 
-// app.get("/",(req,res)=>{
-//     res.send("hello")
-// })
-
 
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", noteRoutes);

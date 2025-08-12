@@ -1,8 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import Sidebar from "../components/Layout/Sidebar";
-import axios from "axios";
-
-const API_URL = "http://localhost:3000";
+import axiosInstance from "../api/axiosConfig";
 
 function Notes() {
   const [notes, setNotes] = useState([]);
@@ -28,8 +26,8 @@ function Notes() {
     setLoading(true);
     setError("");
     try {
-      const res = await axios.get(
-        `${API_URL}/api/notes${searchValue ? `?search=${encodeURIComponent(searchValue)}` : ""}`
+      const res = await axiosInstance.get(
+        `/notes${searchValue ? `?search=${encodeURIComponent(searchValue)}` : ""}`
       );
       setNotes(res.data);
     } catch {
@@ -56,7 +54,7 @@ function Notes() {
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean);
-      await axios.post(`${API_URL}/api/notes`, {
+      await axiosInstance.post(`/notes`, {
         title: form.title,
         content: form.content,
         tags: tagsArray,
@@ -105,7 +103,7 @@ function Notes() {
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean);
-      await axios.put(`${API_URL}/api/notes/${noteId}`, {
+      await axiosInstance.put(`/notes/${noteId}`, {
         title: editForm.title,
         content: editForm.content,
         tags: tagsArray,
@@ -124,7 +122,7 @@ function Notes() {
     setLoading(true);
     setError("");
     try {
-      await axios.delete(`${API_URL}/api/notes/${id}`);
+      await axiosInstance.delete(`/notes/${id}`);
       fetchNotes();
     } catch {
       setError("Failed to delete note");
@@ -137,7 +135,7 @@ function Notes() {
     setLoading(true);
     setError("");
     try {
-      await axios.post(`${API_URL}/api/notes/${noteId}/highlight`, {
+      await axiosInstance.post(`/notes/${noteId}/highlight`, {
         highlight: highlightTexts[noteId],
       });
       setHighlightTexts((prev) => ({ ...prev, [noteId]: "" }));
@@ -156,7 +154,7 @@ function Notes() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      await axios.post(`${API_URL}/api/notes/${noteId}/attach`, formData, {
+      await axiosInstance.post(`/notes/${noteId}/attach`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setFiles((prev) => ({ ...prev, [noteId]: null }));
@@ -225,7 +223,7 @@ function Notes() {
             </div>
           </div>
         </header>
-
+ 
         {/* Utilities: search + sort */}
         <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

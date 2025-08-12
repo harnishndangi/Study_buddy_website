@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosConfig";
 import Sidebar from "../components/Layout/Sidebar";
 
 function Tasks() {
@@ -18,14 +18,11 @@ function Tasks() {
     files: [],
   });
 
-  // API base URL - adjust according to your backend
-  const API_URL = "http://localhost:3000/api/tasks";
-
   // All your existing functions remain the same...
   const fetchTasks = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(API_URL);
+      const response = await axiosInstance.get("/tasks");
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
@@ -62,7 +59,7 @@ function Tasks() {
         formDataToSend.append("files", file);
       });
 
-      await axios.post(API_URL, formDataToSend, {
+      await axiosInstance.post("/tasks", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -111,7 +108,7 @@ function Tasks() {
         formDataToSend.append("files", file);
       });
 
-      await axios.put(`${API_URL}/${editingTask._id}`, formDataToSend, {
+      await axiosInstance.put(`/tasks/${editingTask._id}`, formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -136,7 +133,7 @@ function Tasks() {
   const deleteTask = async (taskId) => {
     if (window.confirm("Are you sure you want to delete this task?")) {
       try {
-        await axios.delete(`${API_URL}/${taskId}`);
+        await axiosInstance.delete(`/tasks/${taskId}`);
         fetchTasks();
         alert("Task deleted successfully!");
       } catch (error) {
@@ -148,7 +145,7 @@ function Tasks() {
 
   const completeTask = async (taskId) => {
     try {
-      await axios.post(`${API_URL}/${taskId}/complete`);
+      await axiosInstance.post(`/tasks/${taskId}/complete`);
       fetchTasks();
     } catch (error) {
       console.error("Error completing task:", error);
@@ -158,7 +155,7 @@ function Tasks() {
 
   const updatePriority = async (taskId, priority) => {
     try {
-      await axios.post(`${API_URL}/${taskId}/priority`, { priority });
+      await axiosInstance.post(`/tasks/${taskId}/priority`, { priority });
       fetchTasks();
     } catch (error) {
       console.error("Error updating priority:", error);
@@ -168,7 +165,7 @@ function Tasks() {
 
   const updateDeadline = async (taskId, deadline) => {
     try {
-      await axios.post(`${API_URL}/${taskId}/deadline`, { deadline });
+      await axiosInstance.post(`/tasks/${taskId}/deadline`, { deadline });
       fetchTasks();
     } catch (error) {
       console.error("Error updating deadline:", error);
@@ -303,7 +300,7 @@ function Tasks() {
                 </button>
               </div>
             </div>
-
+ 
             {/* Create/Edit Task Form Modal - FIXED MODAL */}
             {(showCreateForm || editingTask) && (
               <div

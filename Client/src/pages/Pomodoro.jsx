@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../api/axiosConfig";
 import Sidebar from "../components/Layout/Sidebar";
 
 function Pomodoro() {
@@ -44,9 +44,8 @@ function Pomodoro() {
     }
   };
 
-  // API Configuration
-  const API_URL = "http://localhost:3000/api/pomodoros";
-  const userId = getUserIdFromToken(); // Replace with actual user ID from auth context
+  // Replace with actual user ID from auth context
+  const userId = getUserIdFromToken();
 
   // Timer Effect
   useEffect(() => {
@@ -60,7 +59,7 @@ function Pomodoro() {
     }
     return () => clearInterval(interval);
   }, [isActive, isPaused, time]);
-
+ 
   // Handle phase completion
   const handlePhaseComplete = async () => {
     // Play notification sound
@@ -121,7 +120,7 @@ function Pomodoro() {
   // API Functions
   const startSession = async () => {
     try {
-      const response = await axios.post(`${API_URL}/start/${userId}`, {
+      const response = await axiosInstance.post(`/pomodoros/start/${userId}`, {
         studyPeriod,
         shortBreak,
         longBreak,
@@ -139,7 +138,7 @@ function Pomodoro() {
 
   const logCompletedSession = async (rounds) => {
     try {
-      await axios.post(`${API_URL}/log/${userId}`, {
+      await axiosInstance.post(`/pomodoros/log/${userId}`, {
         studyPeriod,
         shortBreak,
         longBreak,
@@ -159,7 +158,7 @@ function Pomodoro() {
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}?userId=${userId}`);
+      const response = await axiosInstance.get(`/pomodoros?userId=${userId}`);
       setSessions(response.data);
     } catch (error) {
       console.error("Error fetching sessions:", error);
@@ -170,7 +169,7 @@ function Pomodoro() {
 
   const fetchStats = async () => {
     try {
-      const response = await axios.get(`${API_URL}/stats/${userId}`);
+      const response = await axiosInstance.get(`/pomodoros/stats/${userId}`);
       setStats(response.data);
     } catch (error) {
       console.error("Error fetching stats:", error);
