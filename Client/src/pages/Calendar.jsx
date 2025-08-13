@@ -407,7 +407,7 @@ function Calendar() {
       <Sidebar />
 
       {/* Main Content - Fixed height with internal scrolling */}
-      <div className="flex-1 flex flex-col overflow-hidden ml-20 md:ml-40">
+      <div className="flex-1 flex flex-col overflow-hidden ml-0 md:ml-40 pt-14 md:pt-0">
         {/* Fixed Header */}
         <div className="flex-shrink-0 bg-white shadow-sm border-b border-gray-200 p-3 lg:p-4">
           {/* Title Section */}

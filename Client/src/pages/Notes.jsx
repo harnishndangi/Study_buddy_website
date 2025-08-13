@@ -189,7 +189,7 @@ function Notes() {
   return (
     <div className="flex flex-row h-screen bg-slate-50 overflow-x-auto">
       <Sidebar />
-      <main className="flex-1 min-w-0 overflow-y-auto ml-20 md:ml-40">
+      <main className="flex-1 min-w-0 overflow-y-auto ml-0 md:ml-40 pt-14 md:pt-0">
         {/* Header */}
         <header className="sticky top-0 z-20 backdrop-blur supports-[backdrop-filter]:bg-white/60 bg-white/80 border-b border-slate-200">
           <div className="relative">

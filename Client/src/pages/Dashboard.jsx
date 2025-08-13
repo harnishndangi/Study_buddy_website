@@ -145,7 +145,7 @@ function Dashboard() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <Sidebar />
-      <main className="ml-20 md:ml-40 p-3 sm:p-4 lg:p-6 xl:p-8">
+      <main className="ml-0 md:ml-40 p-3 sm:p-4 lg:p-6 xl:p-8 pt-14 md:pt-0">
         <div className="max-w-7xl mx-auto">
           {/* --- Header --- */}
           <div className="mb-4 sm:mb-6">

@@ -25,7 +25,7 @@ function Clips() {
     <>
       <div className="flex h-screen">
         <Sidebar />
-        <main className="flex-1 bg-gray-50 overflow-hidden ml-20 md:ml-40 flex flex-col">
+        <main className="flex-1 bg-gray-50 overflow-hidden ml-0 md:ml-40 flex flex-col pt-14 md:pt-0">
           
           {/* Header Section */}
           <div className="px-4 sm:px-6 md:px-10 py-4 sm:py-6">

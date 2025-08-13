@@ -140,7 +140,7 @@ const SimplePieChart = ({ data }) => {
     .join(", ");
 
   return (
-    <div className="flex items-center justify-center gap-8 h-full">
+    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 h-full">
       <div
         className="w-32 h-32 sm:w-40 sm:h-40 rounded-full"
         style={{ background: `conic-gradient(${gradientStops})` }}
@@ -329,7 +329,7 @@ function Analytics() {
     return (
       <div className="bg-gray-50 min-h-screen">
         <Sidebar />
-        <main className="ml-20 md:ml-40 p-4 sm:p-6 lg:p-8">
+        <main className="ml-0 md:ml-40 p-4 sm:p-6 lg:p-8 pt-14 md:pt-0">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
             <span className="ml-4 text-gray-600">Loading analytics...</span>
@@ -342,7 +342,7 @@ function Analytics() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <Sidebar />
-      <main className="ml-20 md:ml-40 p-4 sm:p-6 lg:p-8">
+      <main className="ml-0 md:ml-40 p-4 sm:p-6 lg:p-8 pt-14 md:pt-0">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="mb-6">
@@ -357,7 +357,7 @@ function Analytics() {
               </div>
 
               {/* Date Range Filter */}
-              <div className="flex items-center gap-2 bg-white rounded-lg p-1 shadow-sm border">
+              <div className="flex flex-wrap items-center gap-2 bg-white rounded-lg p-1 shadow-sm border">
                 {["day", "week", "month"].map((range) => (
                   <button
                     key={range}
@@ -382,7 +382,7 @@ function Analytics() {
           </div>
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
             <StatCard
               title="Total Tasks"
               value={taskStats.total}
@@ -414,7 +414,7 @@ function Analytics() {
           </div>
 
           {/* Charts Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-8">
             <ChartCard title="Task Priority Distribution">
               <SimplePieChart data={taskStats.chartData} />
             </ChartCard>
@@ -436,8 +436,8 @@ function Analytics() {
           </div>
 
           {/* Additional Insights */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="bg-white rounded-xl shadow-md p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Recent Activity
               </h3>
@@ -478,7 +478,7 @@ function Analytics() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Quick Stats
               </h3>
@@ -526,7 +526,7 @@ function Analytics() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-md p-6">
+            <div className="bg-white rounded-xl shadow-md p-4 sm:p-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Recommendations
               </h3>

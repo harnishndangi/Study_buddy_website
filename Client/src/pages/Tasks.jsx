@@ -237,7 +237,7 @@ function Tasks() {
         <div className={`${(showCreateForm || editingTask) ? 'hidden md:block' : ''}`}>
           <Sidebar />
         </div>
-        <main className={`flex-1 ${(showCreateForm || editingTask) ? 'ml-0 md:ml-40' : 'ml-20 md:ml-40'} p-3 sm:p-6 lg:p-8 bg-gray-50 overflow-y-auto relative z-10`}>
+        <main className={`flex-1 ${(showCreateForm || editingTask) ? 'ml-0 md:ml-40' : 'ml-0 md:ml-40'} p-3 sm:p-6 lg:p-8 bg-gray-50 overflow-y-auto relative z-10 pt-14 md:pt-0`}>
           <div className="max-w-6xl mx-auto">
             {/* Header */}
             <div className="flex flex-col space-y-4 sm:flex-row sm:justify-between sm:items-center sm:space-y-0 mb-6 pb-4 border-b border-gray-200">
