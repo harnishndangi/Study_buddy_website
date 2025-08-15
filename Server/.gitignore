@@ -1,1 +1,4 @@
-.env
+.env.local
+# Ignore environment variable files
+.env.development.local
+
