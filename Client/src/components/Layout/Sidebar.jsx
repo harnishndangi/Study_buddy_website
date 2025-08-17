@@ -13,6 +13,7 @@ import {
   FileText,
   AlarmCheckIcon,
   LogOut,
+  Users,
 } from "lucide-react";
 
 const navItems = [
@@ -22,6 +23,7 @@ const navItems = [
   { label: "Calendar", to: "/calendar", icon: <Calendar size={18} /> },
   { label: "Analytics", to: "/analytics", icon: <BarChart2 size={18} /> },
   { label: "Clips", to: "/clips", icon: <Layers size={18} /> },
+  { label: "Groups", to: "/groups", icon: <Users size={18} /> },
 ];
 
 function Sidebar() {
@@ -42,6 +44,7 @@ function Sidebar() {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setIsLoggedIn(false);
     navigate("/");
   };
