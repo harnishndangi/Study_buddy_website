@@ -16,7 +16,8 @@ const Signup = () => {
     setError("");
     setSuccess("");
     try {
-      await axiosInstance.post("/auth/signup", { email, password });
+      await axiosInstance.post("/auth/signup", 
+        { email, password });
       setSuccess("Signup successful! Redirecting to login...");
       navigate("/login");
     } catch (err) {
