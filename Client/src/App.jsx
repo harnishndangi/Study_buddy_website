@@ -14,6 +14,8 @@ import NotFound from './pages/NotFound';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Pomodoro from './pages/Pomodoro';
+import Groups from './pages/Groups';
+import GroupChat from './pages/GroupChat';
   
 const App = () => (
   <ThemeProvider>
@@ -30,6 +32,8 @@ const App = () => (
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/pomodoro" element={<Pomodoro />} />
+          <Route path="/groups" element={<Groups />} />
+          <Route path="/groups/:id" element={<GroupChat />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

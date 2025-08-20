@@ -1,33 +1,34 @@
 import express from 'express';
 import { getTasks, getTaskById, createTask, updateTask, deleteTask, completeTask, updatePriority, updateDeadline } from '../controllers/taskController.js';
 import upload from '../middleware/upload.js'; // Multer middleware for file uploads
+import protectedRoute from '../middleware/protectedRoute.js'; // Protected route middleware
 
 const router = express.Router();
   
 
 // Get all tasks
-router.get('/', getTasks);
+router.get('/', protectedRoute, getTasks);
 
 // Get a single task by ID
-router.get('/:id', getTaskById);
+router.get('/:id', protectedRoute, getTaskById);
 
 // Create a new task
-router.post('/', upload.array('files', 5), createTask);
+router.post('/', protectedRoute, upload.array('files', 5), createTask);
 
 // Update a task by ID
-router.put('/:id', upload.array('files', 5), updateTask);
+router.put('/:id', protectedRoute, upload.array('files', 5), updateTask);
 
 // Delete a task by ID
-router.delete('/:id', deleteTask);
+router.delete('/:id', protectedRoute, deleteTask);
 
 // Mark a task as completed
-router.post('/:id/complete', completeTask);
+router.post('/:id/complete', protectedRoute, completeTask);
 
 // Update task priority
-router.post('/:id/priority', updatePriority);
+router.post('/:id/priority', protectedRoute, updatePriority);
 
 // Update task deadline
-router.post('/:id/deadline',updateDeadline);
+router.post('/:id/deadline', protectedRoute, updateDeadline);
 
 
 export default router;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../api/axiosConfig";
 import Sidebar from "../components/Layout/Sidebar";
 import { Book, Calendar, CheckSquare, Clock, PlusCircle } from "lucide-react";
 
@@ -86,13 +86,13 @@ function Dashboard() {
         const [tasksResponse, eventsResponse, notesResponse, pomoResponse] =
         await Promise.all([
         // Get all tasks since backend doesn't support filtering by deadline/status yet
-        axios.get("http://localhost:3000/api/tasks"),
+        axiosInstance.get("/tasks"),
         // Fetch upcoming events from calendar (sorted ascending)
-        axios.get(`http://localhost:3000/api/calendar?startDate=${encodeURIComponent(startFromNow)}&endDate=${encodeURIComponent(endIn30Days)}&sortBy=start&sortOrder=asc`),
+        axiosInstance.get(`/calendar?startDate=${encodeURIComponent(startFromNow)}&endDate=${encodeURIComponent(endIn30Days)}&sortBy=start&sortOrder=asc`),
           // Get recent notes - backend supports search but not limit/sortBy params
-            axios.get("http://localhost:3000/api/notes"),
+            axiosInstance.get("/notes"),
             // Get pomodoro stats with userId param
-            axios.get(`http://localhost:3000/api/pomodoros/stats/${userId}`),
+            axiosInstance.get(`/pomodoros/stats/${userId}`),
           ]);
 
         // Filter tasks for today's deadline and pending status on frontend

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../api/axiosConfig';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -14,8 +14,11 @@ const Login = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.post('http://localhost:3000/api/auth/login', { email, password });
+      const res = await axiosInstance.post('/auth/login', { email, password });
       localStorage.setItem('token', res.data.token);
+      if (res.data.user) {
+        localStorage.setItem('user', JSON.stringify(res.data.user));
+      }
       navigate('/');
     } catch (err) {
       if (err.response && err.response.data && err.response.data.message) {
