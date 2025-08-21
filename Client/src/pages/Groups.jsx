@@ -12,37 +12,31 @@ const Groups = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (storedUser) {
-      try {
-        const u = JSON.parse(storedUser);
-        if (u?.id) {
-          setUserId(u.id);
-          load(u.id);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
+  // Load groups for the current session user
+  const run = async () => {
+  try {
+  const { data } = await fetchMyGroups();
+  setGroups(data);
+  } catch (e) {
+  console.error(e);
+  }
+  };
+  run();
   }, []);
-
-  const load = async (uid) => {
-    if (!uid) return;
-    try {
-      const { data } = await fetchMyGroups(uid);
-      setGroups(data);
-    } catch (e) {
-      console.error(e);
-    }
+  
+  const load = async () => {
+     try {
+      const { data } = await fetchMyGroups();
+    setGroups(data);
+  } catch (e) {
+  console.error(e);
+  }
   };
 
   const onCreate = async (e) => {
     e.preventDefault();
     const trimmed = name.trim();
-    if (!userId) {
-      alert("Please log in to create a group.");
-      return;
-    }
+    // Session-authenticated; server derives user from cookie.
     if (!trimmed) {
       alert("Group name is required.");
       return;
@@ -51,11 +45,10 @@ const Groups = () => {
       await createGroup({
         name: trimmed,
         description: description.trim(),
-        userId,
       });
       setName("");
       setDescription("");
-      await load(userId);
+      await load();
     } catch (e) {
       console.error(e);
     }
@@ -64,18 +57,15 @@ const Groups = () => {
   const onJoin = async (e) => {
     e.preventDefault();
     const code = joinCode.trim();
-    if (!userId) {
-      alert("Please log in to join a group.");
-      return;
-    }
+    // Session-authenticated; server derives user from cookie.
     if (!code) {
       alert("Invite code is required.");
       return;
     }
     try {
-      await joinGroupByCode(code, userId);
+      await joinGroupByCode(code);
       setJoinCode("");
-      await load(userId);
+      await load();
     } catch (e) {
       console.error(e);
     }

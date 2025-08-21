@@ -19,13 +19,12 @@ export const startSession = async (req, res) => {
       tag
     } = req.body;
 
-    const userId = req.params.userId;
-    if (!userId || !studyPeriod) {
-      return res.status(400).json({ error: "userId (from route) and studyPeriod are required." });
+    if (!studyPeriod) {
+      return res.status(400).json({ error: "studyPeriod is required." });
     }
 
     const session = new PomodoroSession({
-      userId,
+      userId: req.user.id,
       studyPeriod,
       shortBreak,
       longBreak,
@@ -45,15 +44,9 @@ export const startSession = async (req, res) => {
 /**
  * Log a completed Pomodoro session
  */
-
-
 export const logSession = async (req, res) => {
   try {
-    const userId = req.params.userId;
-    if (!userId) {
-      return res.status(400).json({ error: "userId (from route) is required." });
-    }
-    const session = new PomodoroSession({ ...req.body, userId });
+    const session = new PomodoroSession({ ...req.body, userId: req.user.id });
     await session.save();
     res.status(201).json(session);
   } catch (error) {
@@ -66,8 +59,7 @@ export const logSession = async (req, res) => {
  */
 export const getSessions = async (req, res) => {
   try {
-    const filter = req.query.userId ? { userId: req.query.userId } : {};
-    const sessions = await PomodoroSession.find(filter).sort({ createdAt: -1 });
+    const sessions = await PomodoroSession.find({ userId: req.user.id }).sort({ createdAt: -1 });
     res.json(sessions);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -79,10 +71,7 @@ export const getSessions = async (req, res) => {
  */
 export const getStats = async (req, res) => {
   try {
-    const userId = req.params.userId;
-    if (!userId) {
-      return res.status(400).json({ error: "userId (from route) is required." });
-    }
+    const userId = req.user.id;
     const stats = await PomodoroSession.aggregate([
       { $match: { userId } },
       {

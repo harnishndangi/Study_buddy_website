@@ -17,10 +17,12 @@ const Signup = () => {
     setError("");
     setSuccess("");
     try {
-      await axiosInstance.post("/auth/signup", 
-        { email, password });
-      setSuccess("Signup successful! Redirecting to login...");
-      navigate("/login");
+      const res = await axiosInstance.post("/auth/signup", { email, password });
+      if (res.data?.user) {
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+      }
+      setSuccess("Signup successful! Redirecting...");
+      navigate("/");
     } catch (err) {
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);

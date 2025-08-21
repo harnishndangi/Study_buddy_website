@@ -30,22 +30,17 @@ function Pomodoro() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("timer"); // 'timer', 'sessions', 'stats'
 
-  // Helper function to decode JWT and extract user ID
-  const getUserIdFromToken = () => {
-    const token = localStorage.getItem("token");
-    if (!token) return null;
-
+  // We no longer decode JWT on the client; the server uses the session cookie.
+  // If you need the user ID for UI, read it from localStorage user (set on login).
+  const getUserFromStorage = () => {
     try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      return payload.userId || payload.id || payload.sub;
-    } catch (error) {
-      console.error("Error decoding token:", error);
+      const raw = localStorage.getItem('user');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
       return null;
     }
   };
-
-  // Replace with actual user ID from auth context
-  const userId = getUserIdFromToken();
+  const currentUser = getUserFromStorage();
 
   // Timer Effect
   useEffect(() => {
@@ -120,7 +115,7 @@ function Pomodoro() {
   // API Functions
   const startSession = async () => {
     try {
-      const response = await axiosInstance.post(`/pomodoros/start/${userId}`, {
+      const response = await axiosInstance.post(`/pomodoros/start`, {
         studyPeriod,
         shortBreak,
         longBreak,
@@ -138,7 +133,7 @@ function Pomodoro() {
 
   const logCompletedSession = async (rounds) => {
     try {
-      await axiosInstance.post(`/pomodoros/log/${userId}`, {
+      await axiosInstance.post(`/pomodoros/log`, {
         studyPeriod,
         shortBreak,
         longBreak,
@@ -158,7 +153,7 @@ function Pomodoro() {
   const fetchSessions = async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get(`/pomodoros?userId=${userId}`);
+      const response = await axiosInstance.get(`/pomodoros`);
       setSessions(response.data);
     } catch (error) {
       console.error("Error fetching sessions:", error);
@@ -169,7 +164,7 @@ function Pomodoro() {
 
   const fetchStats = async () => {
     try {
-      const response = await axiosInstance.get(`/pomodoros/stats/${userId}`);
+      const response = await axiosInstance.get(`/pomodoros/stats`);
       setStats(response.data);
     } catch (error) {
       console.error("Error fetching stats:", error);

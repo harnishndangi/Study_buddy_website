@@ -12,19 +12,7 @@ import {
   Activity,
 } from "lucide-react";
 
-// Utility function to get user ID from token
-const getUserIdFromToken = () => {
-  const token = localStorage.getItem("token");
-  if (!token) return null;
-
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    return payload.userId || payload.id || payload.sub;
-  } catch (error) {
-    console.error("Error decoding token:", error);
-    return null;
-  }
-};
+// Backend uses httpOnly session cookie; no token decoding needed on client.
 
 // Reusable components
 const StatCard = ({
@@ -179,10 +167,7 @@ function Analytics() {
     setError("");
 
     try {
-      const userId = getUserIdFromToken();
-      if (!userId) {
-        throw new Error("User not authenticated");
-      }
+      // Session-authenticated; backend infers user from cookie
 
       // Calculate date range
       const today = new Date();
@@ -215,7 +200,7 @@ function Analytics() {
             .get("/notes")
             .catch(() => ({ data: [] })),
           axiosInstance
-            .get(`/pomodoros/stats/${userId}`)
+            .get(`/pomodoros/stats`)
             .catch(() => ({ data: {} })),
           axiosInstance
             .get(

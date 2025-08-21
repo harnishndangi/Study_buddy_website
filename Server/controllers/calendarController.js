@@ -28,6 +28,7 @@ export const createEvent = async (req, res) => {
     }
 
     const newEvent = new CalendarEvent({
+      user: req.user.id,
       title,
       description,
       start: new Date(start),
@@ -69,8 +70,8 @@ export const getEvents = async (req, res) => {
       sortOrder = "asc",
     } = req.query;
 
-    // Build filter object
-    const filter = {};
+    // Build filter object (scope to current user)
+    const filter = { user: req.user.id };
 
     // Date range filtering
     if (startDate || endDate) {
@@ -135,7 +136,7 @@ export const getEventById = async (req, res) => {
       });
     }
 
-    const event = await CalendarEvent.findById(id);
+    const event = await CalendarEvent.findOne({ _id: id, user: req.user.id });
 
     if (!event) {
       return res.status(404).json({
@@ -188,7 +189,7 @@ export const updateEvent = async (req, res) => {
     if (updateData.start) updateData.start = new Date(updateData.start);
     if (updateData.end) updateData.end = new Date(updateData.end);
 
-    const updatedEvent = await CalendarEvent.findByIdAndUpdate(id, updateData, {
+    const updatedEvent = await CalendarEvent.findOneAndUpdate({ _id: id, user: req.user.id }, updateData, {
       new: true,
       runValidators: true,
     });
@@ -230,7 +231,7 @@ export const deleteEvent = async (req, res) => {
       });
     }
 
-    const deletedEvent = await CalendarEvent.findByIdAndDelete(id);
+    const deletedEvent = await CalendarEvent.findOneAndDelete({ _id: id, user: req.user.id });
 
     if (!deletedEvent) {
       return res.status(404).json({

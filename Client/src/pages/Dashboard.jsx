@@ -55,18 +55,8 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-   const getUserIdFromToken = () => {
-    const token = localStorage.getItem("token");
-    if (!token) return null;
-
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      return payload.userId || payload.id || payload.sub;
-    } catch (error) {
-      console.error("Error decoding token:", error);
-      return null;
-    }
-  };
+  // No token decoding; backend uses httpOnly session cookie.
+  // If needed for UI, read user info from localStorage 'user'.
 
   // --- Data Fetching with Axios ---
   useEffect(() => {
@@ -80,20 +70,17 @@ function Dashboard() {
         const startFromNow = new Date().toISOString();
         const endIn30Days = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
         
-        // Note: Using a dummy userId for pomodoro stats. In a real app, get this from auth context
-        const userId = getUserIdFromToken();
-
         const [tasksResponse, eventsResponse, notesResponse, pomoResponse] =
         await Promise.all([
-        // Get all tasks since backend doesn't support filtering by deadline/status yet
+          // Get all tasks for current user
         axiosInstance.get("/tasks"),
         // Fetch upcoming events from calendar (sorted ascending)
         axiosInstance.get(`/calendar?startDate=${encodeURIComponent(startFromNow)}&endDate=${encodeURIComponent(endIn30Days)}&sortBy=start&sortOrder=asc`),
-          // Get recent notes - backend supports search but not limit/sortBy params
+          // Get recent notes
             axiosInstance.get("/notes"),
-            // Get pomodoro stats with userId param
-            axiosInstance.get(`/pomodoros/stats/${userId}`),
-          ]);
+            // Get pomodoro stats for current user session
+          axiosInstance.get(`/pomodoros/stats`),
+        ]);
 
         // Filter tasks for today's deadline and pending status on frontend
         const todayTasks = tasksResponse.data.filter(task => {

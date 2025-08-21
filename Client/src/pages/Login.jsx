@@ -16,7 +16,6 @@ const Login = () => {
     setError('');
     try {
       const res = await axiosInstance.post('/auth/login', { email, password });
-      localStorage.setItem('token', res.data.token);
       if (res.data.user) {
         localStorage.setItem('user', JSON.stringify(res.data.user));
       }

@@ -1,9 +1,34 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
- 
-function generateToken(user) {
-  return jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, {
-    expiresIn: '1d',
+import crypto from 'crypto';
+import { Session } from '../models/Session.js';
+
+const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+function signJwt(user, jti) {
+  return jwt.sign(
+    { sub: String(user._id), id: String(user._id), email: user.email, jti },
+    process.env.JWT_SECRET,
+    { expiresIn: '1d' }
+  );
+}
+
+function setAuthCookies(res, token, csrfToken) {
+  const isProd = process.env.NODE_ENV === 'production';
+  res.cookie('sid', token, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+    maxAge: ONE_DAY_MS,
+    path: '/',
+  });
+  // Double-submit CSRF cookie (readable by JS)
+  res.cookie('csrfToken', csrfToken, {
+    httpOnly: false,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+    maxAge: ONE_DAY_MS,
+    path: '/',
   });
 }
 
@@ -19,8 +44,23 @@ export const signup = async (req, res) => {
     }
     const user = new User({ email, password });
     await user.save();
-    const token = generateToken(user);
-    res.status(201).json({ token, user: { email: user.email,password:user.password, id: user._id },message:"User created successfully" });
+
+    // Auto-login after signup
+    const jti = crypto.randomUUID();
+    const token = signJwt(user, jti);
+    const csrfToken = crypto.randomBytes(24).toString('hex');
+
+    await Session.create({
+      user: user._id,
+      jti,
+      userAgent: req.headers['user-agent'],
+      ip: req.ip,
+      expiresAt: new Date(Date.now() + ONE_DAY_MS),
+    });
+
+    setAuthCookies(res, token, csrfToken);
+
+    res.status(201).json({ user: { email: user.email, id: user._id }, message: 'User created successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
@@ -40,13 +80,45 @@ export const login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid credentials.' });
     }
-    const token = generateToken(user);
-    res.status(200).json({ token, user: { email: user.email, id: user._id }, message: "Login successful" });
+
+    const jti = crypto.randomUUID();
+    const token = signJwt(user, jti);
+    const csrfToken = crypto.randomBytes(24).toString('hex');
+
+    await Session.create({
+      user: user._id,
+      jti,
+      userAgent: req.headers['user-agent'],
+      ip: req.ip,
+      expiresAt: new Date(Date.now() + ONE_DAY_MS),
+    });
+
+    setAuthCookies(res, token, csrfToken);
+
+    res.status(200).json({ user: { email: user.email, id: user._id }, message: 'Login successful' });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
 
-export const logout = (req, res) => {
-  res.status(200).json({ message: 'Logout successful' });
+export const me = async (req, res) => {
+  // req.user is set by auth middleware
+  if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+  res.json({ user: { id: req.user.id, email: req.user.email } });
 };
+
+export const logout = async (req, res) => {
+  try {
+    const jti = req.auth?.jti;
+    if (jti) {
+      await Session.updateOne({ jti }, { $set: { valid: false } });
+    }
+    const isProd = process.env.NODE_ENV === 'production';
+    res.clearCookie('sid', { httpOnly: true, secure: isProd, sameSite: isProd ? 'none' : 'lax', path: '/' });
+    res.clearCookie('csrfToken', { httpOnly: false, secure: isProd, sameSite: isProd ? 'none' : 'lax', path: '/' });
+    res.status(200).json({ message: 'Logout successful' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+};
+

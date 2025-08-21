@@ -31,6 +31,7 @@ export const createTask = async (req, res) => {
     }
 
     const task = await Task.create({
+      user: req.user.id,
       title,
       deadline,
       priority,
@@ -52,7 +53,7 @@ export const createTask = async (req, res) => {
  */
 export const getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find().sort({ createdAt: -1 });
+    const tasks = await Task.find({ user: req.user.id }).sort({ createdAt: -1 });
     res.json(tasks);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch tasks', error: err.message });
@@ -64,7 +65,7 @@ export const getTasks = async (req, res) => {
  */
 export const getTaskById = async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id);
+    const task = await Task.findOne({ _id: req.params.id, user: req.user.id });
     if (!task) return res.status(404).json({ message: 'Task not found' });
     res.json(task);
   } catch (err) {
@@ -88,7 +89,7 @@ export const updateTask = async (req, res) => {
     // Handle file uploads if present (req.files = multer's array of files)
     if (req.files && req.files.length > 0) {
       // Find the existing task to get current attachments
-      const existingTask = await Task.findById(req.params.id);
+      const existingTask = await Task.findOne({ _id: req.params.id, user: req.user.id });
       if (!existingTask) return res.status(404).json({ message: 'Task not found' });
       const attachments = existingTask.attachments ? [...existingTask.attachments] : [];
       for (const file of req.files) {
@@ -107,7 +108,7 @@ export const updateTask = async (req, res) => {
       updateFields.attachments = attachments;
     }
 
-    const task = await Task.findByIdAndUpdate(req.params.id, updateFields, { new: true });
+    const task = await Task.findOneAndUpdate({ _id: req.params.id, user: req.user.id }, updateFields, { new: true });
     if (!task) return res.status(404).json({ message: 'Task not found' });
     res.json(task);
   } catch (err) {
@@ -120,7 +121,7 @@ export const updateTask = async (req, res) => {
  */
 export const deleteTask = async (req, res) => {
   try {
-    const task = await Task.findByIdAndDelete(req.params.id);
+    const task = await Task.findOneAndDelete({ _id: req.params.id, user: req.user.id });
     if (!task) return res.status(404).json({ message: 'Task not found' });
     res.json({ message: 'Task deleted' });
   } catch (err) {
@@ -133,8 +134,8 @@ export const deleteTask = async (req, res) => {
  */
 export const completeTask = async (req, res) => {
   try {
-    const task = await Task.findByIdAndUpdate(
-      req.params.id,
+    const task = await Task.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
       { completed: true },
       { new: true }
     );
@@ -154,8 +155,8 @@ export const updatePriority = async (req, res) => {
     if (!['low', 'medium', 'high'].includes(priority)) {
       return res.status(400).json({ message: 'Invalid priority value' });
     }
-    const task = await Task.findByIdAndUpdate(
-      req.params.id,
+    const task = await Task.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
       { priority },
       { new: true }
     );
@@ -175,8 +176,8 @@ export const updateDeadline = async (req, res) => {
     if (!deadline) {
       return res.status(400).json({ message: 'Deadline is required' });
     }
-    const task = await Task.findByIdAndUpdate(
-      req.params.id,
+    const task = await Task.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
       { deadline },
       { new: true }
     );

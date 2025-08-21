@@ -1,8 +1,8 @@
 // Note Controller: Handles CRUD and utility logic for notes
 // Includes: create, read, update, delete, search, highlight, file attach
 
-import { Note}  from "../models/Note.js";
-import uploadToCloudinary  from "../utils/uploadtocloudinary.js";
+import { Note } from "../models/Note.js";
+import uploadToCloudinary from "../utils/uploadtocloudinary.js";
 
 /**
  * Create a new note
@@ -10,9 +10,8 @@ import uploadToCloudinary  from "../utils/uploadtocloudinary.js";
 export const createNote = async (req, res) => {
   try {
     const { title, content, tags } = req.body;
-    const note = new Note({ title, content, tags });
+    const note = new Note({ user: req.user.id, title, content, tags });
     await note.save();
-    console.log("Note created:", note);
     res.status(201).json(note);
   } catch (err) {
     res.status(500).json({ error: "Failed to create note" });
@@ -20,19 +19,17 @@ export const createNote = async (req, res) => {
 };
 
 /**
- * Get all notes or search notes
- */
-/**
  * Get all notes or search notes by title/content/tags
  * Query params: ?search=term
  */
 export const getNotes = async (req, res) => {
   try {
     const { search } = req.query;
-    let query = {};
+    const base = { user: req.user.id };
+    let query = base;
     if (search) {
-      // Search in title, content, or tags
       query = {
+        ...base,
         $or: [
           { title: { $regex: search, $options: 'i' } },
           { content: { $regex: search, $options: 'i' } },
@@ -49,14 +46,11 @@ export const getNotes = async (req, res) => {
 
 /**
  * Get a single note by ID
- */
-/**
- * Get a single note by ID
  * Route param: /:id
  */
 export const getNoteById = async (req, res) => {
   try {
-    const note = await Note.findById(req.params.id);
+    const note = await Note.findOne({ _id: req.params.id, user: req.user.id });
     if (!note) return res.status(404).json({ error: "Note not found" });
     res.json(note);
   } catch (err) {
@@ -66,59 +60,38 @@ export const getNoteById = async (req, res) => {
 
 /**
  * Update a note by ID
- */
-/**
- * Update a note by ID
  * Route param: /:id
  * Body: { title, content, tags }
  */
 export const updateNote = async (req, res) => {
   try {
     const { title, content, tags } = req.body;
-    const note = await Note.findByIdAndUpdate(
-      req.params.id,
+    const note = await Note.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
       { title, content, tags },
       { new: true }
     );
-    if(note){
-      console.log("Note updated:", note);
-      return res.json({ message: "Note updated successfully", note });
-    } else {
-      console.log("Note not found for update");
-    }
     if (!note) return res.status(404).json({ error: "Note not found" });
-    res.json(note);
+    res.json({ message: "Note updated successfully", note });
   } catch (err) {
-    console.error("Error updating note:", err);
     res.status(500).json({ error: "Failed to update note" });
   }
 };
 
 /**
  * Delete a note by ID
- */
-/**
- * Delete a note by ID
  * Route param: /:id
  */
 export const deleteNote = async (req, res) => {
   try {
-    const note = await Note.findByIdAndDelete(req.params.id);
-    if (!note){
-      console.log("Note not found");
-      return res.status(404).json({ error: "Note not found" });
-    }
+    const note = await Note.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    if (!note) return res.status(404).json({ error: "Note not found" });
     res.json({ message: "Note deleted" });
   } catch (err) {
-    console.error("Error deleting note:", err);
     res.status(500).json({ error: "Failed to delete note" });
-    
   }
 };
 
-/**
- * Highlight text in a note
- */
 /**
  * Highlight text in a note
  * Body: { highlight } (string to highlight)
@@ -127,8 +100,8 @@ export const highlightNote = async (req, res) => {
   try {
     const { highlight } = req.body;
     if (!highlight) return res.status(400).json({ error: "Highlight text required" });
-    const note = await Note.findByIdAndUpdate(
-      req.params.id,
+    const note = await Note.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
       { $addToSet: { highlights: highlight } },
       { new: true }
     );
@@ -161,8 +134,8 @@ export const attachFile = async (req, res) => {
     };
 
     // Add the file data to the note's attachments array
-    const note = await Note.findByIdAndUpdate(
-      req.params.id,
+    const note = await Note.findOneAndUpdate(
+      { _id: req.params.id, user: req.user.id },
       { $push: { attachments: fileData } },
       { new: true }
     );
