@@ -13,20 +13,33 @@ export const createTask = async (req, res) => {
     const attachments = [];
 
     // Handle file uploads if present (req.files = multer's array of files)
-    if (req.files) {
+    if (req.files && req.files.length > 0) {
       for (const file of req.files) {
-        // Upload each file to Cloudinary
-        const uploadRes = await uploadToCloudinary(
-          file.buffer,
-          file.originalname,
-          file.mimetype
-        );
-        attachments.push({
-          filename: file.originalname,
-          url: uploadRes.secure_url,
-          mimetype: file.mimetype,
-          size: file.size,
-        });
+        try {
+          // Upload each file to Cloudinary
+          const uploadRes = await uploadToCloudinary(
+            file.buffer,
+            file.originalname,
+            file.mimetype
+          );
+          
+          if (!uploadRes || !uploadRes.secure_url) {
+            return res.status(500).json({ 
+              error: `Failed to upload file: ${file.originalname}. Please try again.` 
+            });
+          }
+          
+          attachments.push({
+            filename: file.originalname,
+            url: uploadRes.secure_url,
+            mimetype: file.mimetype,
+            size: file.size,
+          });
+        } catch (uploadErr) {
+          return res.status(500).json({ 
+            error: `Failed to upload file: ${file.originalname}. ${uploadErr.message}` 
+          });
+        }
       }
     }
 
@@ -44,7 +57,7 @@ export const createTask = async (req, res) => {
   } catch (err) {
     res
       .status(500)
-      .json({ message: "Failed to create task", error: err.message });
+      .json({ error: err.message || "Failed to create task. Please try again." });
   }
 };
 
@@ -90,29 +103,43 @@ export const updateTask = async (req, res) => {
     if (req.files && req.files.length > 0) {
       // Find the existing task to get current attachments
       const existingTask = await Task.findOne({ _id: req.params.id, user: req.user.id });
-      if (!existingTask) return res.status(404).json({ message: 'Task not found' });
+      if (!existingTask) return res.status(404).json({ error: 'Task not found' });
       const attachments = existingTask.attachments ? [...existingTask.attachments] : [];
+      
       for (const file of req.files) {
-        const uploadRes = await uploadToCloudinary(
-          file.buffer,
-          file.originalname,
-          file.mimetype
-        );
-        attachments.push({
-          filename: file.originalname,
-          url: uploadRes.secure_url,
-          mimetype: file.mimetype,
-          size: file.size,
-        });
+        try {
+          const uploadRes = await uploadToCloudinary(
+            file.buffer,
+            file.originalname,
+            file.mimetype
+          );
+          
+          if (!uploadRes || !uploadRes.secure_url) {
+            return res.status(500).json({ 
+              error: `Failed to upload file: ${file.originalname}. Please try again.` 
+            });
+          }
+          
+          attachments.push({
+            filename: file.originalname,
+            url: uploadRes.secure_url,
+            mimetype: file.mimetype,
+            size: file.size,
+          });
+        } catch (uploadErr) {
+          return res.status(500).json({ 
+            error: `Failed to upload file: ${file.originalname}. ${uploadErr.message}` 
+          });
+        }
       }
       updateFields.attachments = attachments;
     }
 
     const task = await Task.findOneAndUpdate({ _id: req.params.id, user: req.user.id }, updateFields, { new: true });
-    if (!task) return res.status(404).json({ message: 'Task not found' });
+    if (!task) return res.status(404).json({ error: 'Task not found' });
     res.json(task);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to update task', error: err.message });
+    res.status(500).json({ error: err.message || 'Failed to update task. Please try again.' });
   }
 };
 
@@ -153,17 +180,17 @@ export const updatePriority = async (req, res) => {
   try {
     const { priority } = req.body;
     if (!['low', 'medium', 'high'].includes(priority)) {
-      return res.status(400).json({ message: 'Invalid priority value' });
+      return res.status(400).json({ error: 'Invalid priority value. Must be low, medium, or high.' });
     }
     const task = await Task.findOneAndUpdate(
       { _id: req.params.id, user: req.user.id },
       { priority },
       { new: true }
     );
-    if (!task) return res.status(404).json({ message: 'Task not found' });
+    if (!task) return res.status(404).json({ error: 'Task not found' });
     res.json(task);
   } catch (err) {
-    res.status(500).json({ message: 'Failed to update priority', error: err.message });
+    res.status(500).json({ error: err.message || 'Failed to update priority. Please try again.' });
   }
 };
 

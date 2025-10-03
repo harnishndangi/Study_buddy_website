@@ -26,7 +26,8 @@ function Tasks() {
       setTasks(response.data);
     } catch (error) {
       console.error("Error fetching tasks:", error);
-      alert("Failed to fetch tasks");
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || "Failed to fetch tasks. Please try again.";
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -140,8 +140,9 @@ function Notes() {
       });
       setHighlightTexts((prev) => ({ ...prev, [noteId]: "" }));
       fetchNotes();
-    } catch {
-      setError("Failed to highlight");
+    } catch (err) {
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Failed to highlight. Please try again.";
+      setError(errorMessage);
     }
     setLoading(false);
   };

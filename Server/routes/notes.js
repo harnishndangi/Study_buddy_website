@@ -1,6 +1,6 @@
 import express from 'express';
 import { getNotes, getNoteById, createNote, updateNote, deleteNote, highlightNote, attachFile } from '../controllers/noteController.js';
-import upload from '../middleware/upload.js'; // Multer middleware for file uploads
+import upload, { handleMulterError } from '../middleware/upload.js'; // Multer middleware for file uploads
 import protectedRoute from '../middleware/protectedRoute.js'; // Protected route middleware
 
 const router = express.Router();
@@ -24,6 +24,6 @@ router.delete('/:id', protectedRoute, deleteNote);
 router.post('/:id/highlight', protectedRoute, highlightNote);
 
 // Attach a file to a note (multipart/form-data, file field: 'file')
-router.post('/:id/attach', protectedRoute, upload.single('file'), attachFile);
+router.post('/:id/attach', protectedRoute, upload.single('file'), handleMulterError, attachFile);
   
 export default router;

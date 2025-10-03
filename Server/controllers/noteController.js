@@ -116,32 +116,36 @@ export const highlightNote = async (req, res) => {
 export const attachFile = async (req, res) => {
   try {
     // Check if a file was uploaded
-    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+    if (!req.file) return res.status(400).json({ error: "No file uploaded. Please select a file to attach." });
     const { buffer, originalname, mimetype, size } = req.file;
 
     // Upload the file buffer to Cloudinary
-    const result = await uploadToCloudinary(buffer, `notes_attachments/${originalname}`, mimetype);
-    if (!result || !result.secure_url) {
-      return res.status(500).json({ error: "Cloudinary upload failed" });
+    try {
+      const result = await uploadToCloudinary(buffer, `notes_attachments/${originalname}`, mimetype);
+      if (!result || !result.secure_url) {
+        return res.status(500).json({ error: `Failed to upload file: ${originalname}. Please try again.` });
+      }
+
+      // Prepare file data to store in the note
+      const fileData = {
+        filename: originalname,
+        url: result.secure_url,
+        mimetype,
+        size,
+      };
+
+      // Add the file data to the note's attachments array
+      const note = await Note.findOneAndUpdate(
+        { _id: req.params.id, user: req.user.id },
+        { $push: { attachments: fileData } },
+        { new: true }
+      );
+      if (!note) return res.status(404).json({ error: "Note not found" });
+      res.json(note);
+    } catch (uploadErr) {
+      return res.status(500).json({ error: `Failed to upload file: ${originalname}. ${uploadErr.message}` });
     }
-
-    // Prepare file data to store in the note
-    const fileData = {
-      filename: originalname,
-      url: result.secure_url,
-      mimetype,
-      size,
-    };
-
-    // Add the file data to the note's attachments array
-    const note = await Note.findOneAndUpdate(
-      { _id: req.params.id, user: req.user.id },
-      { $push: { attachments: fileData } },
-      { new: true }
-    );
-    if (!note) return res.status(404).json({ error: "Note not found" });
-    res.json(note);
   } catch (err) {
-    res.status(500).json({ error: err.message || "Failed to attach file" });
+    res.status(500).json({ error: err.message || "Failed to attach file. Please try again." });
   }
 };
