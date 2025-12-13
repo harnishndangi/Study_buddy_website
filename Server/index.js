@@ -19,12 +19,16 @@ import protectedRoute from "./middleware/protectedRoute.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
-const clientOrigin = "https://study-buddy-jx68.onrender.com";
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://study-buddy-jx68.onrender.com",
+  process.env.CORS_ORIGIN,
+].filter(Boolean);
 
 app.use(helmet());
 app.use(
   cors({
-    origin: clientOrigin,
+    origin: allowedOrigins,
     credentials: true,
   })
 );
@@ -45,7 +49,7 @@ app.use("/api/groups", protectedRoute, groupRoutes);
 
 const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
-  cors: { origin: clientOrigin, credentials: true },
+  cors: { origin: allowedOrigins, credentials: true },
 });
 
 io.on("connection", (socket) => {
