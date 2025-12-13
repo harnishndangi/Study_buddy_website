@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { fetchMessages } from "../api/groups";
 import { io } from "socket.io-client";
 
-const socket = io("http://localhost:3000", { transports: ["websocket"] });
+const socket = io("https://study-buddy-website.onrender.com", { transports: ["websocket"] });
 
 const GroupChat = () => {
   const { id } = useParams();
@@ -79,18 +79,16 @@ const GroupChat = () => {
               {messages.map((m) => (
                 <div
                   key={m._id}
-                  className={`flex ${
-                    m.sender === userId || m.sender?._id === userId
+                  className={`flex ${m.sender === userId || m.sender?._id === userId
                       ? "justify-end"
                       : "justify-start"
-                  }`}
+                    }`}
                 >
                   <div
-                    className={`rounded px-3 py-2 max-w-[85%] sm:max-w-[70%] ${
-                      m.sender === userId || m.sender?._id === userId
+                    className={`rounded px-3 py-2 max-w-[85%] sm:max-w-[70%] ${m.sender === userId || m.sender?._id === userId
                         ? "bg-indigo-600 text-white"
                         : "bg-slate-100"
-                    }`}
+                      }`}
                   >
                     <div className="text-sm break-words">{m.content}</div>
                     <div className="text-[10px] opacity-70 mt-1">
