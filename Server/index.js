@@ -22,7 +22,7 @@ import protectedRoute from "./middleware/protectedRoute.js";
 const app = express();
 const port = process.env.PORT || 3000;
 const allowedOrigins = [
-  "https://study-buddy-jx68.onrender.com",
+  "https://study-buddy-x4l2.onrender.com",
   process.env.CORS_ORIGIN,
 ].filter(Boolean);
 
