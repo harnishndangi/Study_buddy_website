@@ -2,7 +2,7 @@
 // Includes: add, check (complete), update priority, update deadline, etc.
 
 import { Task } from "../models/Task.js";
-import uploadToCloudinary from "../utils/uploadtocloudinary.js";
+import uploadToCloudinary from "../utils/uploadToCloudinary.js";
  
 /**
  * Create a new task

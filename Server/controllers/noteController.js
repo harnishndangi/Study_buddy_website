@@ -2,7 +2,7 @@
 // Includes: create, read, update, delete, search, highlight, file attach
 
 import { Note } from "../models/Note.js";
-import uploadToCloudinary from "../utils/uploadtocloudinary.js";
+import uploadToCloudinary from "../utils/uploadToCloudinary.js";
 
 /**
  * Create a new note
