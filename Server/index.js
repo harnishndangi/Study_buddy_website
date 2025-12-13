@@ -19,7 +19,7 @@ import protectedRoute from "./middleware/protectedRoute.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
-const clientOrigin = process.env.CORS_ORIGIN || "http://localhost:5173";
+const clientOrigin = "https://study-buddy-jx68.onrender.com";
 
 app.use(helmet());
 app.use(
