@@ -25,7 +25,7 @@ const port = process.env.PORT || 3000;
 // Configure allowed origins for CORS
 const allowedOrigins = [
   "https://study-buddy-x4l2.onrender.com",
-  "http://localhost:5173", // For local development
+  "http://localhost:5173",
   "http://localhost:3000",
   process.env.CORS_ORIGIN,
 ].filter(Boolean);
@@ -34,17 +34,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Security headers
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 // CORS configuration
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      
+
       if (allowedOrigins.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
@@ -53,41 +54,55 @@ app.use(
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
-    exposedHeaders: ['Set-Cookie'],
-    maxAge: 86400 // 24 hours
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
+    exposedHeaders: ["Set-Cookie"],
+    maxAge: 86400,
   })
 );
 
 // Handle preflight requests explicitly
-app.options('*', cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(null, false);
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token']
-}));
+app.options(
+  "*",
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(null, false);
+      }
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
+  })
+);
+
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true, limit: "10mb" })); // Increase limit for larger payloads
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Basic auth rate limiting
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 app.use("/api/auth", authLimiter);
 
-// Request logging middleware for debugging
+// Request logging middleware
 app.use((req, res, next) => {
-  console.log(`📨 ${req.method} ${req.path} - Origin: ${req.get('origin') || 'none'}`);
+  console.log(`📨 ${req.method} ${req.path} - Origin: ${req.get("origin") || "none"}`);
   next();
 });
 
+// Health check route (before other routes)
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || "development",
+  });
+});
 
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", protectedRoute, noteRoutes);
 app.use("/api/tasks", protectedRoute, taskRoutes);
@@ -95,25 +110,44 @@ app.use("/api/pomodoros", protectedRoute, pomodoroRoutes);
 app.use("/api/calendar", protectedRoute, calendarRoutes);
 app.use("/api/groups", protectedRoute, groupRoutes);
 
-// Static file serving removed as frontend is deployed as a separate service
+// 404 handler - MUST use named wildcard for Express v5+
+app.all("/{*catchAll}", (req, res) => {
+  res.status(404).json({
+    error: "Route not found",
+    path: req.path,
+    method: req.method,
+  });
+});
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error("❌ Error:", err);
+  res.status(err.status || 500).json({
+    error: err.message || "Internal server error",
+    ...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+  });
+});
 
+// Create HTTP server
 const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
   cors: { origin: allowedOrigins, credentials: true },
 });
 
+// Socket.IO connection handling
 io.on("connection", (socket) => {
-  // client should emit: join_group { groupId }
+  console.log("👤 User connected:", socket.id);
+
   socket.on("join_group", ({ groupId }) => {
-    if (groupId) socket.join(`group:${groupId}`);
+    if (groupId) {
+      socket.join(`group:${groupId}`);
+      console.log(`User ${socket.id} joined group ${groupId}`);
+    }
   });
 
-  // client emits: group_message { groupId, userId, content }
   socket.on("group_message", async ({ groupId, userId, content }) => {
     if (!groupId || !userId || !content) return;
     try {
-      // ensure sender is a member of the group
       const isMember = await Group.exists({ _id: groupId, members: userId });
       if (!isMember) return;
 
@@ -122,6 +156,7 @@ io.on("connection", (socket) => {
         sender: userId,
         content,
       });
+
       io.to(`group:${groupId}`).emit("group_message", {
         _id: msg._id,
         group: groupId,
@@ -134,26 +169,20 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {});
-});
-
-app.get("/api/health", (req, res) => {
-  res.json({ 
-    status: "ok",
-    message: "Server is running",
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+  socket.on("disconnect", () => {
+    console.log("👋 User disconnected:", socket.id);
   });
 });
 
+// Start server
 httpServer.listen(port, async () => {
   try {
     await connectDB();
     console.log(`✅ Server is running on port ${port}`);
-    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`🔗 CORS Origins: ${allowedOrigins.join(', ')}`);
+    console.log(`📍 Environment: ${process.env.NODE_ENV || "development"}`);
+    console.log(`🔗 CORS Origins: ${allowedOrigins.join(", ")}`);
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error("❌ Failed to start server:", error);
     process.exit(1);
   }
 });
