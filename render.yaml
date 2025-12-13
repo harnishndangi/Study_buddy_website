@@ -9,7 +9,7 @@ services:
     envVars:
       - key: PORT
         value: 10000
-      - key: MONGODB_URI
+      - key: MONGO_DB_URI
         sync: false
       - key: JWT_SECRET
         sync: false

@@ -102,10 +102,22 @@ io.on("connection", (socket) => {
 });
 
 app.get("/api/health", (req, res) => {
-  res.json({ message: "Server is running" });
+  res.json({ 
+    status: "ok",
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 httpServer.listen(port, async () => {
-  await connectDB();
-  console.log(`Server is running on http://localhost:${port}`);
+  try {
+    await connectDB();
+    console.log(`✅ Server is running on port ${port}`);
+    console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`🔗 CORS Origins: ${allowedOrigins.join(', ')}`);
+  } catch (error) {
+    console.error('❌ Failed to start server:', error);
+    process.exit(1);
+  }
 });

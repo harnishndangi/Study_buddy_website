@@ -4,7 +4,23 @@ import { useParams } from "react-router-dom";
 import { fetchMessages } from "../api/groups";
 import { io } from "socket.io-client";
 
-const socket = io((import.meta.env.VITE_API_URL || 'https://study-buddy-web-n6kg.onrender.com/api').replace('/api', ''), { transports: ["websocket"] });
+// Get the base URL for socket connection (remove /api suffix if present)
+const getSocketUrl = () => {
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://study-buddy-web-n6kg.onrender.com/api';
+  return apiUrl.replace('/api', '');
+};
+
+const socket = io(getSocketUrl(), {
+  transports: ["websocket"],
+  reconnection: true,
+  reconnectionDelay: 1000,
+  reconnectionAttempts: 5
+});
+
+socket.on('connect_error', (error) => {
+  console.error('Socket connection error:', error);
+});
+
 
 const GroupChat = () => {
   const { id } = useParams();
