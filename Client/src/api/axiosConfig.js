@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://study-buddy-website-ennx.onrender.com/api',
+  baseURL: import.meta.env.VITE_API_URL || 'https://study-buddy-web-n6kg.onrender.com/api',
   timeout: 10000,
   withCredentials: true,
 });
@@ -19,7 +19,7 @@ axiosInstance.interceptors.request.use(
     const method = (config.method || 'get').toUpperCase();
     const csrf = getCookie('csrfToken');
     if (csrf && !['GET', 'HEAD', 'OPTIONS'].includes(method)) {
-      config.headers['X-CSRF-Token'] = csrf;
+      config.headers['X-CSRF-Token'] = csrf; 
     }
     return config;
   },

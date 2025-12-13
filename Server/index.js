@@ -31,7 +31,7 @@ app.use(
     credentials: true,
   })
 );
-app.options("(.*)", cors({ origin: allowedOrigins, credentials: true })); // Handle preflight requests explicitly
+app.options(/.*/, cors({ origin: allowedOrigins, credentials: true })); // Handle preflight requests explicitly
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "10mb" })); // Increase limit for larger payloads
