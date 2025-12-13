@@ -13,7 +13,7 @@ const getApiUrl = () => {
   }
   
   // Fallback for production
-  return 'https://study-buddy-website-30kd.onrender.com/api';
+  return 'https://study-buddy-website.onrender.com/api';
 };
 
 const API_URL = getApiUrl();
