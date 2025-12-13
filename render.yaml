@@ -1,0 +1,27 @@
+services:
+  # Backend
+  - type: web
+    name: study-buddy-server
+    runtime: node
+    root: Server
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+
+  # Frontend
+  - type: static
+    name: study-buddy-client
+    root: Client
+    buildCommand: npm install && npm run build
+    publishDir: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false
