@@ -2,14 +2,29 @@
 import axios from 'axios';
 
 // Get API URL from environment variable with fallback
-const API_URL = import.meta.env.VITE_API_URL || 'https://study-buddy-website-30kd.onrender.com/api';
+// The baseURL should include the /api prefix
+const getApiUrl = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  
+  // If environment variable is set, use it
+  if (envUrl) {
+    // Ensure it ends with /api
+    return envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
+  }
+  
+  // Fallback for production
+  return 'https://study-buddy-website-30kd.onrender.com/api';
+};
+
+const API_URL = getApiUrl();
 
 // Log the API URL being used (helpful for debugging)
 console.log('🔗 API Base URL:', API_URL);
 
 // Validate API URL is set
-if (!API_URL) {
-  console.error('❌ VITE_API_URL is not set! API requests will fail.');
+if (!API_URL || API_URL === '/api') {
+  console.error('❌ API URL is not properly configured! API requests will fail.');
+  console.error('Expected format: https://your-backend-url.com/api');
 }
 
 const axiosInstance = axios.create({

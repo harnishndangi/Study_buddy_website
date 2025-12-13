@@ -21,22 +21,58 @@ import protectedRoute from "./middleware/protectedRoute.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Configure allowed origins for CORS
 const allowedOrigins = [
   "https://study-buddy-x4l2.onrender.com",
+  "http://localhost:5173", // For local development
+  "http://localhost:3000",
   process.env.CORS_ORIGIN,
 ].filter(Boolean);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(helmet());
+// Security headers
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+// CORS configuration
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.warn(`⚠️ CORS blocked origin: ${origin}`);
+        callback(null, false);
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+    exposedHeaders: ['Set-Cookie'],
+    maxAge: 86400 // 24 hours
   })
 );
-app.options(/.*/, cors({ origin: allowedOrigins, credentials: true })); // Handle preflight requests explicitly
+
+// Handle preflight requests explicitly
+app.options('*', cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token']
+}));
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "10mb" })); // Increase limit for larger payloads
