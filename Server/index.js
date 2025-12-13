@@ -52,14 +52,8 @@ app.use("/api/pomodoros", protectedRoute, pomodoroRoutes);
 app.use("/api/calendar", protectedRoute, calendarRoutes);
 app.use("/api/groups", protectedRoute, groupRoutes);
 
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, "../Client/dist")));
+// Static file serving removed as frontend is deployed as a separate service
 
-// The "catchall" handler: for any request that doesn't
-// match one above, send back React's index.html file.
-app.get(/(.*)/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../Client/dist/index.html"));
-});
 
 const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
