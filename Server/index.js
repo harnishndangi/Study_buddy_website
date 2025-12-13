@@ -82,6 +82,10 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {});
 });
 
+app.get("/api/health", (req, res) => {
+  res.json({ message: "Server is running" });
+});
+
 httpServer.listen(port, async () => {
   await connectDB();
   console.log(`Server is running on http://localhost:${port}`);
