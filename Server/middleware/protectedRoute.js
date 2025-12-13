@@ -4,6 +4,9 @@ import { Session } from '../models/Session.js';
 const CSRF_SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
  
 const protectedRoute = async (req, res, next) => {
+  if (req.method === "OPTIONS") {
+    return next();
+  }
   try {
     // Prefer httpOnly cookie 'sid'; fallback to Authorization header
     const cookieToken = req.cookies?.sid;
