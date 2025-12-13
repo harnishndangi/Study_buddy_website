@@ -63,7 +63,7 @@ app.use(
 
 // Handle preflight requests explicitly
 app.options(
-  "*",
+  /(.*)/,
   cors({
     origin: function (origin, callback) {
       if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -111,7 +111,7 @@ app.use("/api/calendar", protectedRoute, calendarRoutes);
 app.use("/api/groups", protectedRoute, groupRoutes);
 
 // 404 handler - MUST use named wildcard for Express v5+
-app.all("/{*catchAll}", (req, res) => {
+app.use((req, res) => {
   res.status(404).json({
     error: "Route not found",
     path: req.path,
