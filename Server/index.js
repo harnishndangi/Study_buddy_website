@@ -61,7 +61,7 @@ app.use(
 );
 
 // Handle preflight requests explicitly
-app.options('(.*)', cors({
+app.options('*', cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
