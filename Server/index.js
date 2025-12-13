@@ -45,6 +45,13 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" })); // Increase limi
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
 app.use("/api/auth", authLimiter);
 
+// Request logging middleware for debugging
+app.use((req, res, next) => {
+  console.log(`📨 ${req.method} ${req.path} - Origin: ${req.get('origin') || 'none'}`);
+  next();
+});
+
+
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", protectedRoute, noteRoutes);
 app.use("/api/tasks", protectedRoute, taskRoutes);
