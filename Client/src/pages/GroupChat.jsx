@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { fetchMessages } from "../api/groups";
 import { io } from "socket.io-client";
 
-const socket = io("https://study-buddy-website.onrender.com", { transports: ["websocket"] });
+const socket = io(import.meta.env.VITE_API_URL.replace('/api', ''), { transports: ["websocket"] });
 
 const GroupChat = () => {
   const { id } = useParams();
@@ -80,14 +80,14 @@ const GroupChat = () => {
                 <div
                   key={m._id}
                   className={`flex ${m.sender === userId || m.sender?._id === userId
-                      ? "justify-end"
-                      : "justify-start"
+                    ? "justify-end"
+                    : "justify-start"
                     }`}
                 >
                   <div
                     className={`rounded px-3 py-2 max-w-[85%] sm:max-w-[70%] ${m.sender === userId || m.sender?._id === userId
-                        ? "bg-indigo-600 text-white"
-                        : "bg-slate-100"
+                      ? "bg-indigo-600 text-white"
+                      : "bg-slate-100"
                       }`}
                   >
                     <div className="text-sm break-words">{m.content}</div>
