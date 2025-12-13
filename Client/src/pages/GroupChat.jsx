@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom";
 import { fetchMessages } from "../api/groups";
 import { io } from "socket.io-client";
 
-const socket = io((import.meta.env.VITE_API_URL || 'https://study-buddy-website-ennx.onrender.com/api').replace('/api', ''), { transports: ["websocket"] });
+const socket = io((import.meta.env.VITE_API_URL || 'https://study-buddy-web-n6kg.onrender.com/api').replace('/api', ''), { transports: ["websocket"] });
 
 const GroupChat = () => {
   const { id } = useParams();

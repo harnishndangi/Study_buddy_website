@@ -1,4 +1,6 @@
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 import "dotenv/config";
 import cors from "cors";
 import helmet from "helmet";
@@ -24,6 +26,9 @@ const allowedOrigins = [
   process.env.CORS_ORIGIN,
 ].filter(Boolean);
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 app.use(helmet());
 app.use(
   cors({
@@ -46,6 +51,15 @@ app.use("/api/tasks", protectedRoute, taskRoutes);
 app.use("/api/pomodoros", protectedRoute, pomodoroRoutes);
 app.use("/api/calendar", protectedRoute, calendarRoutes);
 app.use("/api/groups", protectedRoute, groupRoutes);
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../Client/dist")));
+
+// The "catchall" handler: for any request that doesn't
+// match one above, send back React's index.html file.
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../Client/dist/index.html"));
+});
 
 const httpServer = createServer(app);
 const io = new SocketIOServer(httpServer, {
