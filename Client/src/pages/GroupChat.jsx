@@ -6,7 +6,7 @@ import { io } from "socket.io-client";
 
 // Get the base URL for socket connection (remove /api suffix if present)
 const getSocketUrl = () => {
-  const apiUrl = import.meta.env.VITE_API_URL || 'https://study-buddy-web-n6kg.onrender.com/api';
+  const apiUrl = import.meta.env.VITE_API_URL || 'https://study-buddy-website-30kd.onrender.com/api';
   return apiUrl.replace('/api', '');
 };
 

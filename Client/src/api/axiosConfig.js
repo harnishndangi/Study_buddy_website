@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 // Get API URL from environment variable with fallback
-const API_URL = import.meta.env.VITE_API_URL || 'https://study-buddy-web-n6kg.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://study-buddy-website-30kd.onrender.com/api';
 
 // Log the API URL being used (helpful for debugging)
 console.log('🔗 API Base URL:', API_URL);
