@@ -5,7 +5,7 @@ import "dotenv/config";
 import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import { createServer } from "http";
 import { Server as SocketIOServer } from "socket.io";
 import { connectDB } from "./library/db.js";
@@ -91,8 +91,8 @@ const authLimiter = rateLimit({
   max: 100,
   skip: (req) => process.env.NODE_ENV !== "production",
   keyGenerator: (req) => {
-    // Use X-Forwarded-For if behind a proxy, otherwise use the direct IP
-    return req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.ip;
+    // Use ipKeyGenerator helper for proper IPv6 and IPv4 handling
+    return ipKeyGenerator(req);
   },
 });
 app.use("/api/auth", authLimiter);
