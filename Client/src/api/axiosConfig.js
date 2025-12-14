@@ -29,7 +29,7 @@ if (!API_URL || API_URL === '/api') {
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
-  timeout: 10000,
+  timeout: 60000,
   withCredentials: true, // Send cookies with requests
 });
 

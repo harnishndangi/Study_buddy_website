@@ -13,10 +13,10 @@ export const createTask = async (req, res) => {
     const attachments = [];
 
     // Handle file uploads if present (req.files = multer's array of files)
+    // Handle file uploads if present (req.files = multer's array of files)
     if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
+      const uploadPromises = req.files.map(async (file) => {
         try {
-          // Upload each file to Cloudinary
           const uploadRes = await uploadToCloudinary(
             file.buffer,
             file.originalname,
@@ -24,22 +24,25 @@ export const createTask = async (req, res) => {
           );
           
           if (!uploadRes || !uploadRes.secure_url) {
-            return res.status(500).json({ 
-              error: `Failed to upload file: ${file.originalname}. Please try again.` 
-            });
+            throw new Error(`Failed to upload file: ${file.originalname}. Please try again.`);
           }
           
-          attachments.push({
+          return {
             filename: file.originalname,
             url: uploadRes.secure_url,
             mimetype: file.mimetype,
             size: file.size,
-          });
+          };
         } catch (uploadErr) {
-          return res.status(500).json({ 
-            error: `Failed to upload file: ${file.originalname}. ${uploadErr.message}` 
-          });
+          throw new Error(`Failed to upload file: ${file.originalname}. ${uploadErr.message}`);
         }
+      });
+
+      try {
+        const uploadedAttachments = await Promise.all(uploadPromises);
+        attachments.push(...uploadedAttachments);
+      } catch (err) {
+        return res.status(500).json({ error: err.message });
       }
     }
 
@@ -100,13 +103,14 @@ export const updateTask = async (req, res) => {
     if (completed !== undefined) updateFields.completed = completed;
 
     // Handle file uploads if present (req.files = multer's array of files)
+    // Handle file uploads if present (req.files = multer's array of files)
     if (req.files && req.files.length > 0) {
       // Find the existing task to get current attachments
       const existingTask = await Task.findOne({ _id: req.params.id, user: req.user.id });
       if (!existingTask) return res.status(404).json({ error: 'Task not found' });
-      const attachments = existingTask.attachments ? [...existingTask.attachments] : [];
+      const currentAttachments = existingTask.attachments ? [...existingTask.attachments] : [];
       
-      for (const file of req.files) {
+      const uploadPromises = req.files.map(async (file) => {
         try {
           const uploadRes = await uploadToCloudinary(
             file.buffer,
@@ -115,24 +119,26 @@ export const updateTask = async (req, res) => {
           );
           
           if (!uploadRes || !uploadRes.secure_url) {
-            return res.status(500).json({ 
-              error: `Failed to upload file: ${file.originalname}. Please try again.` 
-            });
+            throw new Error(`Failed to upload file: ${file.originalname}. Please try again.`);
           }
           
-          attachments.push({
+          return {
             filename: file.originalname,
             url: uploadRes.secure_url,
             mimetype: file.mimetype,
             size: file.size,
-          });
+          };
         } catch (uploadErr) {
-          return res.status(500).json({ 
-            error: `Failed to upload file: ${file.originalname}. ${uploadErr.message}` 
-          });
+          throw new Error(`Failed to upload file: ${file.originalname}. ${uploadErr.message}`);
         }
+      });
+
+      try {
+        const newAttachments = await Promise.all(uploadPromises);
+        updateFields.attachments = [...currentAttachments, ...newAttachments];
+      } catch (err) {
+        return res.status(500).json({ error: err.message });
       }
-      updateFields.attachments = attachments;
     }
 
     const task = await Task.findOneAndUpdate({ _id: req.params.id, user: req.user.id }, updateFields, { new: true });
