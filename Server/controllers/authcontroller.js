@@ -13,20 +13,19 @@ function signJwt(user, jti) {
   );
 }
 
-function setAuthCookies(res, token, csrfToken) {
-  const isProd = process.env.NODE_ENV === 'production';
+function setAuthCookies(res, token, csrfToken, isSecure) {
   res.cookie('sid', token, {
     httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? 'strict' : 'lax',
+    secure: isSecure,
+    sameSite: isSecure ? 'none' : 'lax', // Must be 'none' if secure (cross-site), 'lax' otherwise (localhost)
     maxAge: ONE_DAY_MS,
     path: '/',
   });
   // Double-submit CSRF cookie (readable by JS)
   res.cookie('csrfToken', csrfToken, {
     httpOnly: false,
-    secure: isProd,
-    sameSite: isProd ? 'strict' : 'lax',
+    secure: isSecure,
+    sameSite: isSecure ? 'none' : 'lax',
     maxAge: ONE_DAY_MS,
     path: '/',
   });
@@ -58,7 +57,7 @@ export const signup = async (req, res) => {
       expiresAt: new Date(Date.now() + ONE_DAY_MS),
     });
 
-    setAuthCookies(res, token, csrfToken);
+    setAuthCookies(res, token, csrfToken, process.env.NODE_ENV === 'production');
 
     res.status(201).json({ user: { email: user.email, id: user._id }, message: 'User created successfully' });
   } catch (err) {
@@ -93,7 +92,7 @@ export const login = async (req, res) => {
       expiresAt: new Date(Date.now() + ONE_DAY_MS),
     });
 
-    setAuthCookies(res, token, csrfToken);
+    setAuthCookies(res, token, csrfToken, process.env.NODE_ENV === 'production');
 
     res.status(200).json({ user: { email: user.email, id: user._id }, message: 'Login successful' });
   } catch (err) {
@@ -113,9 +112,9 @@ export const logout = async (req, res) => {
     if (jti) {
       await Session.updateOne({ jti }, { $set: { valid: false } });
     }
-    const isProd = process.env.NODE_ENV === 'production';
-    res.clearCookie('sid', { httpOnly: true, secure: isProd, sameSite: isProd ? 'none' : 'lax', path: '/' });
-    res.clearCookie('csrfToken', { httpOnly: false, secure: isProd, sameSite: isProd ? 'none' : 'lax', path: '/' });
+    const isSecure = process.env.NODE_ENV === 'production';
+    res.clearCookie('sid', { httpOnly: true, secure: isSecure, sameSite: isSecure ? 'none' : 'lax', path: '/' });
+    res.clearCookie('csrfToken', { httpOnly: false, secure: isSecure, sameSite: isSecure ? 'none' : 'lax', path: '/' });
     res.status(200).json({ message: 'Logout successful' });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });

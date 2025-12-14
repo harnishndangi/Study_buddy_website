@@ -23,7 +23,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Trust proxy - required when behind a reverse proxy (e.g., Render, Heroku)
-app.set("trust proxy", process.env.NODE_ENV === "production" ? 1 : false);
+app.set("trust proxy", 1);
 
 // Configure allowed origins for CORS
 const allowedOrigins = [
