@@ -9,24 +9,19 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     const verifyAuth = async () => {
       try {
-        // Check if user is in localStorage
-        const user = localStorage.getItem('user');
-        if (!user) {
-          setIsAuthenticated(false);
-          setLoading(false);
-          return;
-        }
-
-        // Verify the session with backend
+        // Always verify session with backend (uses cookies automatically)
         const response = await axiosInstance.get('/auth/me');
         if (response.data.user) {
+          // Store user in localStorage for client-side reference
+          localStorage.setItem('user', JSON.stringify(response.data.user));
           setIsAuthenticated(true);
         } else {
+          localStorage.removeItem('user');
           setIsAuthenticated(false);
         }
       } catch (error) {
         // 401 or any error means user is not authenticated
-        console.log('Auth verification failed:', error.response?.status);
+        console.log('Auth verification failed:', error.response?.status, error.message);
         localStorage.removeItem('user');
         setIsAuthenticated(false);
       } finally {
