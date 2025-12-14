@@ -22,6 +22,9 @@ import protectedRoute from "./middleware/protectedRoute.js";
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Trust proxy - required when behind a reverse proxy (e.g., Render, Heroku)
+app.set("trust proxy", process.env.NODE_ENV === "production" ? 1 : false);
+
 // Configure allowed origins for CORS
 const allowedOrigins = [
   "https://study-buddy-lilac-omega.vercel.app",
@@ -83,7 +86,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Basic auth rate limiting
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100 });
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  skip: (req) => process.env.NODE_ENV !== "production",
+  keyGenerator: (req) => {
+    // Use X-Forwarded-For if behind a proxy, otherwise use the direct IP
+    return req.headers["x-forwarded-for"]?.split(",")[0].trim() || req.ip;
+  },
+});
 app.use("/api/auth", authLimiter);
 
 // Request logging middleware
