@@ -24,7 +24,6 @@ const port = process.env.PORT || 3000;
 
 // Configure allowed origins for CORS
 const allowedOrigins = [
-  "https://study-buddy-x4l2.onrender.com",
   "https://study-buddy-lilac-omega.vercel.app",
   "http://localhost:5173",
   "http://localhost:3000",
