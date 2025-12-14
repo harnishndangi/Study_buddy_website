@@ -13,19 +13,11 @@ function signJwt(user, jti) {
   );
 }
 
-function setAuthCookies(res, token, csrfToken, isSecure) {
+function setAuthCookies(res, token, isSecure) {
   res.cookie('sid', token, {
     httpOnly: true,
     secure: isSecure,
     sameSite: isSecure ? 'none' : 'lax', // Must be 'none' if secure (cross-site), 'lax' otherwise (localhost)
-    maxAge: ONE_DAY_MS,
-    path: '/',
-  });
-  // Double-submit CSRF cookie (readable by JS) - using standard XSRF-TOKEN name for Axios auto-detection
-  res.cookie('XSRF-TOKEN', csrfToken, {
-    httpOnly: false,
-    secure: isSecure,
-    sameSite: isSecure ? 'none' : 'lax',
     maxAge: ONE_DAY_MS,
     path: '/',
   });
@@ -47,7 +39,6 @@ export const signup = async (req, res) => {
     // Auto-login after signup
     const jti = crypto.randomUUID();
     const token = signJwt(user, jti);
-    const csrfToken = crypto.randomBytes(24).toString('hex');
 
     await Session.create({
       user: user._id,
@@ -57,9 +48,13 @@ export const signup = async (req, res) => {
       expiresAt: new Date(Date.now() + ONE_DAY_MS),
     });
 
-    setAuthCookies(res, token, csrfToken, process.env.NODE_ENV === 'production');
+    setAuthCookies(res, token, process.env.NODE_ENV === 'production');
 
-    res.status(201).json({ user: { email: user.email, id: user._id }, message: 'User created successfully' });
+    res.status(201).json({ 
+      user: { email: user.email, id: user._id }, 
+      csrfToken: jti, // Return jti as CSRF token for client to use in X-CSRF-Token header
+      message: 'User created successfully' 
+    });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
@@ -82,7 +77,6 @@ export const login = async (req, res) => {
 
     const jti = crypto.randomUUID();
     const token = signJwt(user, jti);
-    const csrfToken = crypto.randomBytes(24).toString('hex');
 
     await Session.create({
       user: user._id,
@@ -92,9 +86,13 @@ export const login = async (req, res) => {
       expiresAt: new Date(Date.now() + ONE_DAY_MS),
     });
 
-    setAuthCookies(res, token, csrfToken, process.env.NODE_ENV === 'production');
+    setAuthCookies(res, token, process.env.NODE_ENV === 'production');
 
-    res.status(200).json({ user: { email: user.email, id: user._id }, message: 'Login successful' });
+    res.status(200).json({ 
+      user: { email: user.email, id: user._id }, 
+      csrfToken: jti, // Return jti as CSRF token for client to use in X-CSRF-Token header
+      message: 'Login successful' 
+    });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }

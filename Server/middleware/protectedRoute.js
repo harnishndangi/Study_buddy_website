@@ -38,11 +38,11 @@ const protectedRoute = async (req, res, next) => {
       return res.status(401).json({ message: 'Session expired.' });
     }
 
-    // Double-submit cookie CSRF validation for state-changing methods
+    // JTI-based CSRF validation for state-changing methods
+    // The jti (JWT ID) from the decoded token serves as the CSRF token
     if (!CSRF_SAFE_METHODS.has(req.method)) {
-      const headerToken = req.headers['x-xsrf-token'];
-      const cookieCsrf = req.cookies?.['XSRF-TOKEN'];
-      if (!headerToken || !cookieCsrf || headerToken !== cookieCsrf) {
+      const csrfHeader = req.headers['x-csrf-token'];
+      if (!csrfHeader || csrfHeader !== decoded.jti) {
         return res.status(403).json({ message: 'CSRF validation failed.' });
       }
     }

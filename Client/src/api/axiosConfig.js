@@ -30,23 +30,24 @@ if (!API_URL || API_URL === '/api') {
 const axiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 10000,
-  withCredentials: true,
-  withXSRFToken: true, // Automatically read XSRF-TOKEN cookie and send as X-XSRF-TOKEN header
-  xsrfCookieName: 'XSRF-TOKEN', // Cookie name to read from
-  xsrfHeaderName: 'X-XSRF-TOKEN', // Header name to send
+  withCredentials: true, // Send cookies with requests
 });
 
-// Helper function to fetch CSRF token after login/signup
-export const fetchCsrfToken = async () => {
-  try {
-    const response = await axiosInstance.get('/auth/csrf-token');
-    console.log('✅ CSRF token fetched:', response.data.csrfToken ? 'present' : 'missing');
-    return response.data.csrfToken;
-  } catch (error) {
-    console.error('❌ Failed to fetch CSRF token:', error.message);
-    throw error;
-  }
-};
+// Request interceptor to add CSRF token to state-changing requests
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // Add CSRF token to non-safe methods (POST, PUT, DELETE, PATCH)
+    const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+    if (!safeMethods.includes(config.method?.toUpperCase())) {
+      const csrfToken = localStorage.getItem('csrfToken');
+      if (csrfToken) {
+        config.headers['X-CSRF-Token'] = csrfToken;
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Add a response interceptor to handle authentication errors
 axiosInstance.interceptors.response.use(
