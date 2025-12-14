@@ -3,6 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import  ThemeProvider  from './context/ThemeContext';
 import  AppProvider from './context/AppProvider';
+import ProtectedRoute from './components/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
 import Notes from './pages/Notes';
 import Tasks from './pages/Tasks';
@@ -22,18 +23,18 @@ const App = () => (
     <AppProvider>
       <Router > 
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/notes" element={<Notes />} />
-          <Route path="/tasks" element={<Tasks />} />
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/clips" element={<Clips />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/pomodoro" element={<Pomodoro />} />
-          <Route path="/groups" element={<Groups />} />
-          <Route path="/groups/:id" element={<GroupChat />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/notes" element={<ProtectedRoute><Notes /></ProtectedRoute>} />
+          <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
+          <Route path="/calendar" element={<ProtectedRoute><Calendar /></ProtectedRoute>} />
+          <Route path="/clips" element={<ProtectedRoute><Clips /></ProtectedRoute>} />
+          <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/pomodoro" element={<ProtectedRoute><Pomodoro /></ProtectedRoute>} />
+          <Route path="/groups" element={<ProtectedRoute><Groups /></ProtectedRoute>} />
+          <Route path="/groups/:id" element={<ProtectedRoute><GroupChat /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
