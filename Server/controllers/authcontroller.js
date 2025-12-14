@@ -18,7 +18,7 @@ function setAuthCookies(res, token, csrfToken) {
   res.cookie('sid', token, {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
+    sameSite: isProd ? 'strict' : 'lax',
     maxAge: ONE_DAY_MS,
     path: '/',
   });
@@ -26,7 +26,7 @@ function setAuthCookies(res, token, csrfToken) {
   res.cookie('csrfToken', csrfToken, {
     httpOnly: false,
     secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
+    sameSite: isProd ? 'strict' : 'lax',
     maxAge: ONE_DAY_MS,
     path: '/',
   });

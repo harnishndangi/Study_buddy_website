@@ -18,11 +18,13 @@ const Login = () => {
       const res = await axiosInstance.post('/auth/login', { email, password });
       if (res.data.user) {
         localStorage.setItem('user', JSON.stringify(res.data.user));
-        console.log('✅ Login successful, redirecting...');
-        // Small delay to ensure cookies are set before navigation
+        console.log('✅ Login successful, cookies set. User:', res.data.user);
+        console.log('📍 Current cookies:', document.cookie);
+        // Longer delay to ensure cookies are properly established before navigation
         setTimeout(() => {
+          console.log('🔀 Redirecting to dashboard...');
           navigate('/');
-        }, 100);
+        }, 300);
       } else {
         setError('Login failed - invalid response from server');
       }
@@ -32,6 +34,7 @@ const Login = () => {
       } else {
         setError('Login failed - ' + (err.message || 'Please check your connection'));
       }
+      console.error('❌ Login error:', err.response?.data || err.message);
     } finally {
       setLoading(false);
     }

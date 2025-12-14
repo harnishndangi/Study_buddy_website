@@ -43,9 +43,12 @@ function getCookie(name) {
 axiosInstance.interceptors.request.use(
   (config) => {
     const method = (config.method || 'get').toUpperCase();
-    const csrf = getCookie('csrfToken');
-    if (csrf && !['GET', 'HEAD', 'OPTIONS'].includes(method)) {
-      config.headers['X-CSRF-Token'] = csrf; 
+    // Only add CSRF token for state-changing methods
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+      const csrf = getCookie('csrfToken');
+      if (csrf) {
+        config.headers['X-CSRF-Token'] = csrf;
+      }
     }
     return config;
   },
