@@ -31,29 +31,22 @@ const axiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 10000,
   withCredentials: true,
+  withXSRFToken: true, // Automatically read XSRF-TOKEN cookie and send as X-XSRF-TOKEN header
+  xsrfCookieName: 'XSRF-TOKEN', // Cookie name to read from
+  xsrfHeaderName: 'X-XSRF-TOKEN', // Header name to send
 });
 
-function getCookie(name) {
-  if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? decodeURIComponent(match[2]) : null;
-}
-
-// Add a request interceptor to attach CSRF token for state-changing requests
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const method = (config.method || 'get').toUpperCase();
-    // Only add CSRF token for state-changing methods
-    if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
-      const csrf = getCookie('csrfToken');
-      if (csrf) {
-        config.headers['X-CSRF-Token'] = csrf;
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+// Helper function to fetch CSRF token after login/signup
+export const fetchCsrfToken = async () => {
+  try {
+    const response = await axiosInstance.get('/auth/csrf-token');
+    console.log('✅ CSRF token fetched:', response.data.csrfToken ? 'present' : 'missing');
+    return response.data.csrfToken;
+  } catch (error) {
+    console.error('❌ Failed to fetch CSRF token:', error.message);
+    throw error;
+  }
+};
 
 // Add a response interceptor to handle authentication errors
 axiosInstance.interceptors.response.use(

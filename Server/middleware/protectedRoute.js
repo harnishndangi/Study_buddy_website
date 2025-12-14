@@ -40,8 +40,8 @@ const protectedRoute = async (req, res, next) => {
 
     // Double-submit cookie CSRF validation for state-changing methods
     if (!CSRF_SAFE_METHODS.has(req.method)) {
-      const headerToken = req.headers['x-csrf-token'];
-      const cookieCsrf = req.cookies?.csrfToken;
+      const headerToken = req.headers['x-xsrf-token'];
+      const cookieCsrf = req.cookies?.['XSRF-TOKEN'];
       if (!headerToken || !cookieCsrf || headerToken !== cookieCsrf) {
         return res.status(403).json({ message: 'CSRF validation failed.' });
       }

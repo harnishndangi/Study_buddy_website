@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axiosInstance from "../api/axiosConfig";
+import axiosInstance, { fetchCsrfToken } from "../api/axiosConfig";
 import logo from "../assets/icons/logo.png";
 
 const Signup = () => {
@@ -20,15 +20,30 @@ const Signup = () => {
       const res = await axiosInstance.post("/auth/signup", { email, password });
       if (res.data?.user) {
         localStorage.setItem("user", JSON.stringify(res.data.user));
+        console.log('✅ Signup successful, cookies set. User:', res.data.user);
+        
+        // Fetch CSRF token to ensure it's available for subsequent requests
+        try {
+          await fetchCsrfToken();
+          console.log('✅ CSRF token verified and ready');
+        } catch (csrfError) {
+          console.warn('⚠️ CSRF token fetch failed, but continuing:', csrfError.message);
+          // Don't block signup if CSRF fetch fails - token should already be set by signup
+        }
       }
       setSuccess("Signup successful! Redirecting...");
-      navigate("/");
+      
+      // Short delay before navigation
+      setTimeout(() => {
+        navigate("/");
+      }, 200);
     } catch (err) {
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
       } else {
         setError("Signup failed");
       }
+      console.error('❌ Signup error:', err.response?.data || err.message);
     } finally {
       setLoading(false);
     }

@@ -58,8 +58,8 @@ app.use(
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
-    exposedHeaders: ["Set-Cookie"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-XSRF-TOKEN"],
+    exposedHeaders: ["Set-Cookie", "XSRF-TOKEN"],
     maxAge: 86400,
   })
 );
@@ -77,7 +77,7 @@ app.options(
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-CSRF-Token"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-XSRF-TOKEN"],
   })
 );
 

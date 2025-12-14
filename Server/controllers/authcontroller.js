@@ -21,8 +21,8 @@ function setAuthCookies(res, token, csrfToken, isSecure) {
     maxAge: ONE_DAY_MS,
     path: '/',
   });
-  // Double-submit CSRF cookie (readable by JS)
-  res.cookie('csrfToken', csrfToken, {
+  // Double-submit CSRF cookie (readable by JS) - using standard XSRF-TOKEN name for Axios auto-detection
+  res.cookie('XSRF-TOKEN', csrfToken, {
     httpOnly: false,
     secure: isSecure,
     sameSite: isSecure ? 'none' : 'lax',

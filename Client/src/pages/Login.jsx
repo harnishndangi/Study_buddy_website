@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axiosInstance from '../api/axiosConfig';
+import axiosInstance, { fetchCsrfToken } from '../api/axiosConfig';
 import logo from '../assets/icons/logo.png';
 
 const Login = () => {
@@ -20,11 +20,21 @@ const Login = () => {
         localStorage.setItem('user', JSON.stringify(res.data.user));
         console.log('✅ Login successful, cookies set. User:', res.data.user);
         console.log('📍 Current cookies:', document.cookie);
-        // Longer delay to ensure cookies are properly established before navigation
+        
+        // Fetch CSRF token to ensure it's available for subsequent requests
+        try {
+          await fetchCsrfToken();
+          console.log('✅ CSRF token verified and ready');
+        } catch (csrfError) {
+          console.warn('⚠️ CSRF token fetch failed, but continuing:', csrfError.message);
+          // Don't block login if CSRF fetch fails - token should already be set by login
+        }
+        
+        // Short delay to ensure cookies are properly established before navigation
         setTimeout(() => {
           console.log('🔀 Redirecting to dashboard...');
           navigate('/');
-        }, 300);
+        }, 200);
       } else {
         setError('Login failed - invalid response from server');
       }
