@@ -1,5 +1,5 @@
 import express from 'express';
-import { getClips, getClipById, saveClip, organizeClips, searchClips } from '../controllers/clipController';
+import { getClips, getClipById, saveClip, organizeClips, searchClips } from '../controllers/clipController.js';
 import protectedRoute from '../middleware/protectedRoute.js'; // Protected route middleware
 const router = express.Router();
 
