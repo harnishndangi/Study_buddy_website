@@ -10,23 +10,12 @@ const getSocketUrl = () => {
   return apiUrl.replace('/api', '');
 };
 
-const socket = io(getSocketUrl(), {
-  transports: ["websocket"],
-  reconnection: true,
-  reconnectionDelay: 1000,
-  reconnectionAttempts: 5
-});
-
-socket.on('connect_error', (error) => {
-  console.error('Socket connection error:', error);
-});
-
-
 const GroupChat = () => {
   const { id } = useParams();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [userId, setUserId] = useState("");
+  const socketRef = useRef(null);
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -53,16 +42,48 @@ const GroupChat = () => {
     run();
   }, [id]);
 
+  // Initialize socket connection only once per component mount
   useEffect(() => {
-    socket.emit("join_group", { groupId: id });
+    const socket = io(getSocketUrl(), {
+      transports: ["websocket"],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5
+    });
+
+    socket.on('connect', () => {
+      console.log('Socket connected:', socket.id);
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Socket disconnected');
+    });
+
+    socketRef.current = socket;
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!socketRef.current) return;
+    
+    socketRef.current.emit("join_group", { groupId: id });
     const onMsg = (msg) => {
       if (msg.group === id) {
         setMessages((prev) => [...prev, msg]);
       }
     };
-    socket.on("group_message", onMsg);
+    socketRef.current.on("group_message", onMsg);
     return () => {
-      socket.off("group_message", onMsg);
+      socketRef.current.off("group_message", onMsg);
     };
   }, [id]);
 
@@ -74,7 +95,9 @@ const GroupChat = () => {
     e.preventDefault();
     const content = input.trim();
     if (!content) return;
-    socket.emit("group_message", { groupId: id, userId, content });
+    if (socketRef.current) {
+      socketRef.current.emit("group_message", { groupId: id, userId, content });
+    }
     setInput("");
   };
 
